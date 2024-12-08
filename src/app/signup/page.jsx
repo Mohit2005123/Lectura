@@ -14,6 +14,7 @@ export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   const checkUserExists = async (email) => {
     try {
@@ -22,6 +23,7 @@ export default function Signup() {
       const querySnapshot = await getDocs(q);
       return !querySnapshot.empty;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Error checking user existence:", error);
       throw new Error('Unable to verify account status');
     }
@@ -36,14 +38,7 @@ export default function Signup() {
 
     try {
       setError(''); // Clear any existing errors
-      
-      // Check if user already exists
-      const userExists = await checkUserExists(email);
-      if (userExists) {
-        setError('An account with this email already exists');
-        return;
-      }
-
+      setIsLoading(true); // Start loading
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
       // Create user document in Firestore
@@ -66,6 +61,8 @@ export default function Signup() {
         setError('An error occurred. Please try again');
       }
       console.error("Error signing up with email and password", error);
+    } finally {
+      setIsLoading(false); // Stop loading
     }
   };
 
@@ -73,6 +70,7 @@ export default function Signup() {
     const provider = new GoogleAuthProvider();
     try {
       setError(''); // Clear any existing errors
+      setIsLoading(true); // Start loading
       
       // First authenticate with Google
       const result = await signInWithPopup(auth, provider);
@@ -105,6 +103,8 @@ export default function Signup() {
     } catch (error) {
       setError('Failed to sign up with Google. Please try again');
       console.error("Error signing up with Google", error);
+    } finally {
+      setIsLoading(false); // Stop loading
     }
   };
 
@@ -134,6 +134,11 @@ export default function Signup() {
             <span className="text-[#9CA3AF]">OR</span>
             <hr className="w-1/3 border-[#333333]" />
           </div>
+          {isLoading && (
+            <div className="flex justify-center mb-4">
+              <div className="loader"></div>
+            </div>
+          )}
           <form className="space-y-6" onSubmit={handleEmailSignup}>
             <input
               type="text"
@@ -175,8 +180,13 @@ export default function Signup() {
             <button
               type="submit"
               className="w-full py-3 px-4 bg-white text-black font-bold rounded-lg hover:bg-gray-100 transition duration-300"
+              disabled={isLoading}
             >
-              Sign Up
+              {isLoading ? (
+                <div className="loader w-4 h-4 border-t-black border-solid animate-spin"></div>
+              ) : (
+                "Sign Up"
+              )}
             </button>
             
             {error && (

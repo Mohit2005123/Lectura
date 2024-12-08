@@ -32,11 +32,11 @@ export default function Login() {
       setError('');
       
       // Check if user exists in database
-      const userExists = await checkUserExists(email);
-      if (!userExists) {
-        setError('No account found with this email. Please sign up first.');
-        return;
-      }
+    //   const userExists = await checkUserExists(email);
+    //   if (!userExists) {
+    //     setError('No account found with this email. Please sign up first.');
+    //     return;
+    //   }
 
       await signInWithEmailAndPassword(auth, email, password);
       router.push('/');
@@ -45,7 +45,11 @@ export default function Login() {
         setError('Invalid email or password');
       } else if (error.code === 'auth/too-many-requests') {
         setError('Too many failed attempts. Please try again later');
-      } else {
+      } 
+      else if(error.code === 'auth/user-not-found') {
+        setError('No account found with this email. Please sign up first.');
+      }
+      else {
         setError('An error occurred. Please try again');
       }
       console.error("Error logging in with email and password", error);
