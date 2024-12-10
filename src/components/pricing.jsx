@@ -22,7 +22,7 @@ const plans = [
 export default function Pricing() {
   return (
     <section id="pricing" className="py-20 px-4 bg-[#0f0f11] ">
-      <h2 className="text-3xl font-bold text-center mb-12">Simple Pricing</h2>
+      <h2 className="text-3xl font-bold text-white text-center mb-12">Simple Pricing</h2>
       <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {plans.map((plan, index) => (
           <div key={index} className="bg-white p-8 rounded-lg shadow-md">

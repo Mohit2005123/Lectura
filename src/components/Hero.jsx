@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Image1 } from "./Image1"
 export default function Hero() {
   return (
-    <section className="py-34  px-4 text-center" >
+    <section className="py-34 bg-[#0f0f11]  px-4 text-center" >
        <Image1/>
       <h1 className="text-4xl md:text-6xl text-white animated-letter font-bold mb-6">
         Transform Your Voice with AI     
@@ -15,7 +15,7 @@ export default function Hero() {
         <Button size="lg" className="bg-violet-600 hover:bg-violet-700">
           Try for Free
         </Button>
-        <Button size="lg" variant="outline">
+        <Button size="lg" className="bg-violet-600 hover:bg-violet-700" variant="outline">
           Learn More
         </Button>
       </div>

@@ -1,4 +1,9 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
-
-export default nextConfig;
+// next.config.js (ESM syntax)
+export default {
+    images: {
+      domains: ['cdn.prod.website-files.com'],
+    },
+  }
+  
+// next.config.js
