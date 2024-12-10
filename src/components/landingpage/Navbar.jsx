@@ -152,7 +152,6 @@ export default function Navbar() {
             )}
           </div>
         </div>
-
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="lg:hidden">

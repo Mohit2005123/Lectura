@@ -31,12 +31,6 @@ export default function Login() {
     try {
       setError('');
       
-      // Check if user exists in database
-    //   const userExists = await checkUserExists(email);
-    //   if (!userExists) {
-    //     setError('No account found with this email. Please sign up first.');
-    //     return;
-    //   }
 
       await signInWithEmailAndPassword(auth, email, password);
       router.push('/');
