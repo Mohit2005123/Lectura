@@ -10,7 +10,7 @@ import {
 import Image from "next/image";
 import { motion } from "framer-motion";
 
-export function AnimatedModalDemo() {
+export default function VideoUploadModal() {
   return (
     <div className="py-40 flex items-center justify-center">
       <Modal>
