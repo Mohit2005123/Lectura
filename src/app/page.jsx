@@ -6,12 +6,12 @@ import Pricing from '../components/pricing'
 import Footer from '../components/footer'
 export default function Home() {
   return (
-    <main className="container min-h-screen ">
+    <div className="w-[100%] bg-[#0f0f11] ">
       <Navbar/>
       <Hero />
       <Features />
       <Pricing/>
       <Footer/>
-    </main>
+    </div>
   )
 }
