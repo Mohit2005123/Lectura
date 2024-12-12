@@ -2,13 +2,17 @@
 import { useState } from "react";
 import VideoUploadModal from "./VideoUploadModal";
 import { Image1 } from "./Image1";
-
+import NotesUploadModal from "./NoteUploadModal";
 export default function Hero() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [isNotesModalOpen, setIsNotesModalOpen] = useState(false);
   const handleModalSubmit = (inputValue) => {
     console.log("Submitted URL:", inputValue);
     setIsModalOpen(false); // Close the modal after submission
+  };
+  const handleNotesModalSubmit = (inputValue) => {
+    console.log("Submitted URL:", inputValue);
+    setIsNotesModalOpen(false); // Close the modal after submission
   };
 
   return (
@@ -48,7 +52,9 @@ export default function Hero() {
           >
             Get Started Upload your Video
           </button>
-          <button className="px-8 py-4 bg-transparent border-2 border-violet-500/50 text-white font-semibold rounded-lg hover:bg-violet-500/20 backdrop-blur-sm transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 text-lg">
+          <button className="px-8 py-4 bg-transparent border-2 border-violet-500/50 text-white font-semibold rounded-lg hover:bg-violet-500/20 backdrop-blur-sm transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 text-lg"
+            onClick={() => setIsNotesModalOpen(true)}
+          >
             Upload your Notes
           </button>
         </div>
@@ -59,6 +65,11 @@ export default function Hero() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleModalSubmit}
+      />
+      <NotesUploadModal
+        isOpen={isNotesModalOpen}
+        onClose={() => setIsNotesModalOpen(false)}
+        onSubmit={handleNotesModalSubmit}
       />
     </section>
   );

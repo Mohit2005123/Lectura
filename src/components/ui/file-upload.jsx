@@ -67,10 +67,6 @@ export const FileUpload = ({
         </div>
         <div className="flex flex-col items-center justify-center">
           <p
-            className="relative z-20 font-sans font-bold text-white">
-            Upload your notes
-          </p>
-          <p
             className="relative z-20 font-sans font-normal text-gray-300 text-base mt-2">
             Drag or drop your notes as word document here or click to upload
           </p>
