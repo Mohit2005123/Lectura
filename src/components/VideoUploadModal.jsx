@@ -39,9 +39,6 @@ export default function VideoUploadModal() {
             </div>
           </ModalContent>
           <ModalFooter className="gap-4 bg-black">
-            <button className="px-4 py-2 bg-black text-white border border-neutral-700 rounded-lg text-sm w-28 hover:bg-neutral-900 transition-all">
-              Cancel
-            </button>
             <button className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg border border-blue-600 w-28 hover:bg-blue-700 transition-all">
               Submit
             </button>
