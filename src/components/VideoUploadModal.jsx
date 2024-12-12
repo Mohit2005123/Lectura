@@ -1,53 +1,74 @@
-"use client";
-import React from "react";
-import {
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalTrigger,
-} from '@/components/ui/animated-modal'
-import Image from "next/image";
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
-export default function VideoUploadModal() {
+export default function VideoUploadModal({ isOpen, onClose, onSubmit }) {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+  }, [isOpen]);
+
   return (
-    <div className="py-40 flex items-center justify-center">
-      <Modal>
-        <ModalTrigger className="bg-black dark:bg-white dark:text-black text-white flex justify-center group/modal-btn">
-          <span className="group-hover/modal-btn:translate-x-40 text-center transition duration-500">
-            Upload Video
-          </span>
-          <div className="-translate-x-40 group-hover/modal-btn:translate-x-0 flex items-center justify-center absolute inset-0 transition duration-500 text-white z-20">
-            🎥
-          </div>
-        </ModalTrigger>
-        <ModalBody className="bg-black">
-          <ModalContent className="bg-black">
-            <h4 className="text-lg md:text-2xl text-white font-bold text-center mb-8">
-              Add Your <span className="text-blue-500">Video</span> Link
-            </h4>
-            
-            <div className="space-y-6 max-w-md mx-auto">
-              <div className="relative">
-                <input 
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          onClick={onClose}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            onClick={e => e.stopPropagation()}
+            className="relative bg-[#1f1f23] text-white rounded-xl shadow-xl w-11/12 max-w-2xl p-8 min-h-[400px]"
+          >
+            {/* Close Button */}
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 text-gray-300 hover:text-white w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+            >
+              ✕
+            </button>
+
+            {/* Modal Content */}
+            <h2 className="text-3xl font-bold mb-6 text-center">Upload Your Video</h2>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const inputValue = e.target.elements.videoInput.value.trim();
+                onSubmit(inputValue);
+              }}
+              className="space-y-6"
+            >
+              <div className="mb-6">
+                <label htmlFor="videoInput" className="block text-lg font-medium mb-3">
+                  Paste the YouTube Video URL:
+                </label>
+                <input
+                  id="videoInput"
                   type="text"
-                  placeholder="Paste video URL here"
-                  className="w-full px-6 py-4 bg-black border border-neutral-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder:text-neutral-400 transition-all text-lg"
+                  placeholder="Enter YouTube video URL"
+                  className="w-full px-4 py-4 rounded-xl bg-[#2b2b31] text-white focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all duration-300"
+                  required
                 />
               </div>
-            </div>
-          </ModalContent>
-          <ModalFooter className="gap-4 bg-black">
-            <button className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg border border-blue-600 w-28 hover:bg-blue-700 transition-all">
-              Submit
-            </button>
-          </ModalFooter>
-        </ModalBody>
-      </Modal>
-    </div>
+              <button
+                type="submit"
+                className="w-full px-6 py-4 bg-gradient-to-r from-violet-600 to-blue-600 text-white font-semibold rounded-xl shadow-md hover:shadow-violet-500/50 transform hover:-translate-y-1 hover:scale-105 transition-all duration-300"
+              >
+                Submit
+              </button>
+            </form>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
-
-
-
