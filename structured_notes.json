@@ -1,0 +1,42 @@
+[
+  {
+    "heading": "Lecture Overview: Scheduling Algorithms",
+    "content": "This lecture will cover various scheduling algorithms used in Operating Systems, including Shortest Job First (SJF), Priority Scheduling, and Round Robin (RR). The first two algorithms will be discussed in both their non-preemptive and preemptive versions, while Round Robin will be introduced as a preemptive version of the First-Come-First-Served (FCFS) algorithm. By the end of this lecture, you should have a solid understanding of each algorithm's characteristics, advantages, and disadvantages."
+  },
+  {
+    "heading": "Introduction to SJF",
+    "content": "Shortest Job First (SJF) is a non-preemptive scheduling algorithm that assigns priority to jobs based on their remaining time (burst time). The job with the shortest burst time is executed first. This algorithm aims to minimize the average waiting time in the queue. However, finding the burst time of each job before executing it is an idealistic task, and it is challenging to implement in real-world scenarios."
+  },
+  {
+    "heading": "SJF Non-Preemptive Version",
+    "content": "In the non-preemptive version of SJF, once a job gets the CPU, it will not be preempted until it completes its execution. An example will be provided to demonstrate how this algorithm works. The criteria for selecting the next job in the queue are arrival time and burst time. The process with the minimum burst time will be scheduled first."
+  },
+  {
+    "heading": "SJF Preemptive Version",
+    "content": "The preemptive version of SJF avoids the convoy effect by preempting the current job when a higher-priority job arrives. In this version, the algorithm will start the current job, then check for other jobs in the ready queue with lower burst times. If such a job is found, it will preempt the current job and schedule the new one. By doing so, the average waiting time in the queue is minimized, and the convoy effect is eliminated."
+  },
+  {
+    "heading": "Priority Scheduling",
+    "content": "Priority Scheduling is a non-preemptive or preemptive algorithm that assigns a priority to each job based on their priorities. In the non-preemptive version, once a job gets the CPU, it will not be preempted until it completes its execution. In the preemptive version, the algorithm will preempt the current job when a higher-priority job arrives. This algorithm is more efficient than the first-come-first-served (FCFS) algorithm but has a high overhead due to the need for frequent context switching."
+  },
+  {
+    "heading": "Problem of Indefinite Waiting in Priority Scheduling",
+    "content": "One major drawback of Priority Scheduling is the possibility of indefinite waiting for lower-priority jobs. This occurs when higher-priority jobs keep arriving, causing lower-priority jobs to be stuck in the ready queue for an extended period. To alleviate this issue, the 'Ageing' technique can be used. Ageing involves gradually increasing the priority of lower-priority jobs over time, helping to ensure they receive the CPU eventually."
+  },
+  {
+    "heading": "Round Robin (RR) Algorithm",
+    "content": "The Round Robin (RR) algorithm is a preemptive version of the First-Come-First-Served (FCFS) algorithm. Each process is assigned a time slice, known as the time quantum, which determines how much CPU time it is given before being preempted and moved to the back of the ready queue. The time quantum is chosen by the operating system's designer and can vary depending on the specific needs of the system."
+  },
+  {
+    "heading": "Implementation of RR Algorithm",
+    "content": "The Round Robin algorithm can be implemented using various data structures, such as a queue or a table. The key idea is to manage the ready queue, where processes waiting for the CPU are stored. When a process arrives or completes its execution, it is added or removed from the queue accordingly. By controlling the time quantum and scheduling decisions, the operating system can optimize CPU usage and balance between different processes."
+  },
+  {
+    "heading": "Comparison and Homework",
+    "content": "In conclusion, the SJF, Priority Scheduling, and Round Robin algorithms have distinct characteristics and challenges. SJF aims to minimize waiting time but requires accurate burst time estimates. Priority Scheduling is efficient but can lead to indefinite waiting for lower-priority jobs. Round Robin is easy to implement but incurs high overheads due to frequent context switching. Homework will involve implementing these algorithms using data structures, such as min-heap for SJF and queue for priority scheduling and round robin."
+  },
+  {
+    "heading": "Conclusion",
+    "content": "This lecture has covered the fundamental concepts of Shortest Job First, Priority Scheduling, and Round Robin algorithms. By understanding these algorithms and their trade-offs, you can make informed decisions when designing or optimizing operating systems for real-world scenarios. Practice and implementation of these concepts are encouraged to solidify your understanding and prepare you for more complex topics in operating systems, such as multi-level queue scheduling and multi-level feedback queue scheduling."
+  }
+]
