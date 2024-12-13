@@ -6,7 +6,7 @@ import { AnimatedPinDemo } from "@/components/dashboard/AnimatedPinDemo";
 
 const DashboardPage = () => {
   return (
-    <div className="relative p-4">
+    <div className="w-[100%] bg-[#0f0f11]">
       <SparklesPreview />
       <div className="flex justify-center">
         <AnimatedPinDemo heading="Vid 1" title="pdf 1"/>
