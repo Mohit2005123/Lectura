@@ -88,22 +88,22 @@
 //     }
 // }
 
-import Groq from 'groq-sdk';
+import Groq from "groq-sdk";
 
 export default async function generateNotes(groqApiKey, transcript) {
-    // Initialize the Groq client with the provided API key
-    const groq = new Groq({ apiKey: groqApiKey });
+  // Initialize the Groq client with the provided API key
+  const groq = new Groq({ apiKey: groqApiKey });
 
-    // Combine the transcript into a single string of text
-    const inputText = transcript.map((line) => line.text).join('\n');
+  // Combine the transcript into a single string of text
+  const inputText = transcript.map((line) => line.text).join("\n");
 
-    // User prompt, structured for Groq's LLM to create notes
-    const userPrompt = `Please structure the following transcript into notes adhering to the above guidelines:
+  // User prompt, structured for Groq's LLM to create notes
+  const userPrompt = `Please structure the following transcript into notes adhering to the above guidelines:
 
     ${inputText}`;
 
-    // System prompt for the LLM
-    const systemPrompt = `
+  // System prompt for the LLM
+  const systemPrompt = `
 You are an intelligent assistant specialized in creating structured, comprehensive, and highly detailed notes from transcripts of lecture videos. Your task is to perform the following steps:
 
 1. If the transcript is not in English, first translate it into English before proceeding with any further processing.
@@ -145,45 +145,47 @@ For example:
 Here is the transcript:
 `;
 
-    let attempts = 0;
-    const maxAttempts = 3;
+  let attempts = 0;
+  const maxAttempts = 3;
 
-    while (attempts < maxAttempts) {
-        try {
-            // Generate the notes by sending a request to the LLM
-            const result = await groq.chat.completions.create({
-                model: "llama-3.1-8b-instant",
-                messages: [
-                    { role: "system", content: systemPrompt },
-                    { role: "user", content: userPrompt },
-                ],
-            });
+  while (attempts < maxAttempts) {
+    try {
+      // Generate the notes by sending a request to the LLM
+      const result = await groq.chat.completions.create({
+        model: "llama-3.1-8b-instant",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+      });
 
-            let notes;
-            try {
-                // Attempt to parse the response as JSON
-                notes = JSON.parse(result.choices[0].message.content);
-                return notes; // Return notes if parsing succeeds
-            } catch (jsonError) {
-                console.warn("Response is not valid JSON. Attempting to extract JSON manually.");
+      let notes;
+      try {
+        // Attempt to parse the response as JSON
+        notes = JSON.parse(result.choices[0].message.content);
+        return notes; // Return notes if parsing succeeds
+      } catch (jsonError) {
+        console.warn(
+          "Response is not valid JSON. Attempting to extract JSON manually."
+        );
 
-                // Extract JSON array from the response using regex
-                const jsonMatch = result.choices[0].message.content.match(/\[.*\]/s);
-                if (jsonMatch) {
-                    notes = JSON.parse(jsonMatch[0]);
-                    return notes; // Return notes if extraction succeeds
-                } else {
-                    throw new Error("Could not extract JSON from the response.");
-                }
-            }
-        } catch (err) {
-            attempts++;
-            console.error(`Attempt ${attempts} failed:`, err);
-
-            if (attempts === maxAttempts) {
-                console.error("Max attempts reached. Unable to generate notes.");
-                return null;
-            }
+        // Extract JSON array from the response using regex
+        const jsonMatch = result.choices[0].message.content.match(/\[.*\]/s);
+        if (jsonMatch) {
+          notes = JSON.parse(jsonMatch[0]);
+          return notes; // Return notes if extraction succeeds
+        } else {
+          throw new Error("Could not extract JSON from the response.");
         }
+      }
+    } catch (err) {
+      attempts++;
+      console.error(`Attempt ${attempts} failed:`, err);
+
+      if (attempts === maxAttempts) {
+        console.error("Max attempts reached. Unable to generate notes.");
+        return null;
+      }
     }
+  }
 }
