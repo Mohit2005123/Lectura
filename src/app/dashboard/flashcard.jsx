@@ -1,7 +1,7 @@
 "use client";
 import VideoUploadModal from "@/components/dashboard/flashcard_modal";
 import { useState } from "react";
-
+import Link from "next/link";
 const Flashcard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   return (
@@ -13,6 +13,11 @@ const Flashcard = () => {
         >
           View Flashcards
         </button>
+        <Link href={'/quiz'}
+          className="px-8 py-4 bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 text-white font-semibold rounded-lg shadow-xl hover:shadow-violet-500/50 transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 text-lg"
+        >
+          Generate Quiz
+        </Link>
         <VideoUploadModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}

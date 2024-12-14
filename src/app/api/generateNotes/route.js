@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import getTranscript from "./generateTranscript";
 import generateNotes from "./groqGenerate";
-const GroqApiKey=process.env.GROQ_API_KEY;
+const GroqApiKey=process.env.groqApiKey;
 export async function POST(request) {
   try{
     const {link} = await request.json();
