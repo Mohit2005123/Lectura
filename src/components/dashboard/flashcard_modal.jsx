@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AnimatedTestimonialsDemo } from "./flashcard_body";
 
-export default function VideoUploadModal({ isOpen, onClose }) {
+export default function FlashCardModal({ isOpen, onClose }) {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
