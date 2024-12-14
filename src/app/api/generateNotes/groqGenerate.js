@@ -132,7 +132,7 @@ export default async function generateNotes(groqApiKey, transcript) {
 
     // System prompt for the LLM
     const systemPrompt = `
-You are an intelligent assistant specialized in creating structured, comprehensive, and highly detailed notes from transcripts of lecture videos. Your task is to perform the following steps:
+You are an intelligent assistant specializing in creating structured, comprehensive, and highly detailed notes from transcripts of YouTube lecture videos. Your task is to perform the following steps:
 
 1. If the transcript is not in English, first translate it into English before proceeding with any further processing.
 2. After translating (if necessary), analyze the transcript and break it into sections to produce thorough and highly detailed notes.
@@ -143,12 +143,34 @@ For the output, provide only the array of objects, nothing extra.
 Each section must:
 1. Begin with a *descriptive heading* that captures the main topic of the section concisely.
 2. Include *highly detailed content*, with the following requirements:
-   - Thorough explanations of concepts, ideas, and examples mentioned in the transcript.
-   - Provide expanded context and insights, even if not explicitly stated in the transcript, to ensure completeness and clarity.
+   - Rewrite the content in third-person text only, presenting information directly without references to the speaker, video, or context (e.g., avoid phrases like "The professor explains" or "In this video").
+   - Provide thorough explanations of concepts, ideas, and examples mentioned in the transcript.
+   - Add expanded context and insights, even if not explicitly stated in the transcript, to ensure completeness and clarity.
    - Include examples, analogies, or use cases to enhance understanding.
    - Summarize important definitions, processes, or frameworks mentioned, elaborating as needed.
 3. Organize the content with subheadings, bullet points, or numbered lists where appropriate for clarity and readability.
 4. Group related ideas together and rewrite them in a clear, structured, and detailed manner, omitting filler words or irrelevant information.
+### Example Output:
+[
+  {
+    "heading": "Introduction to Artificial Intelligence",
+    "content": "Artificial Intelligence (AI) involves creating systems capable of performing tasks that typically require human intelligence, such as reasoning, learning, and problem-solving. AI applications include voice assistants like Alexa, recommendation systems on platforms like Netflix, and autonomous vehicles such as Tesla's self-driving cars. AI's capabilities stem from advancements in machine learning, neural networks, and data processing."
+  },
+  {
+    "heading": "Key Components of AI",
+    "content": "AI consists of several core components:
+   - **Machine Learning (ML)**: ML focuses on training algorithms to learn patterns from data and make predictions. For example, spam filters in email systems use ML to identify unwanted messages.
+   - **Natural Language Processing (NLP)**: NLP enables machines to understand and generate human language. Examples include chatbots, language translation tools like Google Translate, and sentiment analysis tools for analyzing customer feedback.
+   - **Computer Vision**: This field involves analyzing images and videos to extract meaningful information. Examples include facial recognition systems and object detection algorithms in self-driving cars."
+  },
+  {
+    "heading": "Applications of AI in Healthcare",
+    "content": "AI has transformative applications in the healthcare industry, including:
+   1. **Medical Diagnostics**: AI-powered tools like IBM Watson can analyze patient records and medical images to diagnose diseases such as cancer or heart conditions with high accuracy.
+   2. **Drug Discovery**: AI accelerates the discovery of new drugs by predicting potential chemical compounds, saving years of traditional research.
+   3. **Personalized Treatment Plans**: AI systems analyze patient data to recommend tailored treatment options, improving outcomes and reducing costs. For instance, oncology-focused platforms like Tempus provide customized cancer treatment strategies."
+  }
+]
 
 For longer transcripts:
 - Prioritize depth and coverage of critical points.
@@ -193,13 +215,27 @@ Provide the output as a JSON array of objects, where each object has:
             // Enhance the detail of each note
             const detailedNotes = [];
             for (const note of notes) {
+                // const detailPrompt = `
+                // You are an expert in expanding content to create comprehensive and detailed explanations. Using the following text as input, rewrite it to make it more detailed, clear, and insightful while maintaining the same context:
+
+                // "${note.content}"
+
+                // Provide only the rewritten text, nothing else.
+                // `;
                 const detailPrompt = `
-                You are an expert in expanding content to create comprehensive and detailed explanations. Using the following text as input, rewrite it to make it more detailed, clear, and insightful while maintaining the same context:
-                
-                "${note.content}"
-                
-                Provide only the rewritten text, nothing else.
-                `;
+You are an expert in expanding content to create comprehensive and detailed explanations. Using the following text as input, rewrite it to make it more detailed, clear, and insightful while maintaining the same context. 
+
+### Important Guidelines:
+1. Avoid all markdown or special formatting (e.g., **bold**, *italic*).
+2. Provide plain text output with no additional symbols or characters.
+3. Ensure the content remains clear, comprehensive, and insightful.
+
+Input text:
+"${note.content}"
+
+Provide only the rewritten text in plain text, nothing else.
+`;
+
 
                 try {
                     const detailResult = await groq.chat.completions.create({
