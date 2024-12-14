@@ -113,7 +113,7 @@ export const AnimatedTestimonials = ({ testimonials, autoplay = false }) => {
             onClick={handlePrev}
             className="absolute top-1/2 left-[-4rem] transform -translate-y-1/2 h-12 w-12 bg-gray-200 dark:bg-neutral-800 flex items-center justify-center rounded-full"
           >
-            <IconArrowLeft className="h-5 w-5 text-black dark:text-neutral-400" />
+            <IconArrowLeft className="h-6 w-6 text-black dark:text-neutral-400" />
           </button>
           <button
             onClick={handleNext}
