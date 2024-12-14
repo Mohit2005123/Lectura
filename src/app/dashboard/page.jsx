@@ -76,9 +76,9 @@ const DashboardPage = () => {
         <div className="fixed inset-0 w-full h-full" style={{ top: '200px', zIndex: 10 }}>
           <SparklesCore
             background="transparent"
-            minSize={1}
-            maxSize={2}
-            particleDensity={1500}
+            minSize={0.4}
+            maxSize={1.3}
+            particleDensity={1200}
             className="w-full h-full"
             particleColor="#FFFFFF"
           />
