@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
+import axios from 'axios';
+import { useVideoContext } from '../context/VideoContext';
+import {useRouter} from 'next/navigation';
 export default function VideoUploadModal({ isOpen, onClose, onSubmit }) {
+  const { setVideoData } = useVideoContext();
+  const router=useRouter();
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -9,7 +13,17 @@ export default function VideoUploadModal({ isOpen, onClose, onSubmit }) {
       document.body.style.overflow = "auto";
     }
   }, [isOpen]);
-
+  const handleSubmit = async (inputValue) => {
+    try {
+      const response = await axios.post("/api/generateNotes", { link: inputValue }); // Make a POST request to the API
+      setVideoData(response.data.notes); // Store the data in Context
+      console.log(response.data.notes);
+      router.push('/video-result'); // Redirect to the result page
+      onClose(); // Close the modal
+    } catch (error) {
+      console.error("Error uploading video:", error);
+    }
+  };
   return (
     <AnimatePresence>
       {isOpen && (
@@ -43,7 +57,7 @@ export default function VideoUploadModal({ isOpen, onClose, onSubmit }) {
               onSubmit={(e) => {
                 e.preventDefault();
                 const inputValue = e.target.elements.videoInput.value.trim();
-                onSubmit(inputValue);
+                handleSubmit(inputValue);
               }}
               className="space-y-6"
             >
