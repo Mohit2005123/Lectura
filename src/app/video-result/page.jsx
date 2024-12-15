@@ -15,6 +15,7 @@ export default function VideoPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [user, setUser] = useState(null);
   const [currentNoteId, setCurrentNoteId] = useState(null);
+  const [noteTitle, setNoteTitle] = useState("Untitled Note");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -55,66 +56,59 @@ export default function VideoPage() {
       return;
     }
 
+    if (!noteTitle.trim()) {
+      alert('Please enter a title for your note');
+      return;
+    }
+
     try {
       setIsSaving(true);
       const userId = user.uid;
 
-      // Check if there's already a note for this video
-      if (!currentNoteId) {
-        // Query to find existing note
-        const notesRef = collection(db, 'notes');
-        const q = query(
-          notesRef, 
-          where('userId', '==', userId)
-          // Add any other specific identifiers for the video if available
-        );
-        
-        const querySnapshot = await getDocs(q);
-        
-        if (!querySnapshot.empty) {
-          // Use the first existing note
-          const existingNote = querySnapshot.docs[0];
-          setCurrentNoteId(existingNote.id);
-          
-          // Update existing note
-          const noteRef = doc(db, 'notes', existingNote.id);
-          await updateDoc(noteRef, {
-            content: videoData,
-            updatedAt: new Date()
-          });
-        } else {
-          // Create new note if none exists
-          const notesCollection = collection(db, 'notes');
-          const noteDoc = await addDoc(notesCollection, {
-            content: videoData,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            userId: userId
-          });
-          
-          setCurrentNoteId(noteDoc.id);
+      // Query to check if a note with the same title exists
+      const notesRef = collection(db, 'notes');
+      const q = query(
+        notesRef, 
+        where('userId', '==', userId),
+        where('title', '==', noteTitle)
+      );
+      const querySnapshot = await getDocs(q);
 
-          // Update user's notes array
-          const userRef = doc(db, 'users', userId);
-          const userDoc = await getDoc(userRef);
-          
-          if (!userDoc.exists()) {
-            await setDoc(userRef, {
-              notes: [noteDoc.id]
-            });
-          } else {
-            await updateDoc(userRef, {
-              notes: arrayUnion(noteDoc.id)
-            });
-          }
-        }
-      } else {
+      if (!querySnapshot.empty) {
         // Update existing note
-        const noteRef = doc(db, 'notes', currentNoteId);
+        const existingNote = querySnapshot.docs[0];
+        const noteRef = doc(db, 'notes', existingNote.id);
         await updateDoc(noteRef, {
           content: videoData,
           updatedAt: new Date()
         });
+        setCurrentNoteId(existingNote.id);
+      } else {
+        // Create new note
+        const notesCollection = collection(db, 'notes');
+        const noteDoc = await addDoc(notesCollection, {
+          title: noteTitle,
+          content: videoData,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          userId: userId
+        });
+        
+        setCurrentNoteId(noteDoc.id);
+
+        // Update user's notes array with the new note ID
+        const userRef = doc(db, 'users', userId);
+        const userDoc = await getDoc(userRef);
+        
+        if (!userDoc.exists()) {
+          await setDoc(userRef, {
+            notes: [noteDoc.id]
+          });
+        } else {
+          await updateDoc(userRef, {
+            notes: arrayUnion(noteDoc.id)
+          });
+        }
       }
 
       alert('Notes saved successfully!');
@@ -207,9 +201,18 @@ export default function VideoPage() {
         <div className="max-w-4xl mx-auto">
           {/* Header Section - now with both Download and Save buttons */}
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-white">
-              Generated Notes
-            </h1>
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-4">
+                Generated Notes
+              </h1>
+              <input
+                type="text"
+                value={noteTitle}
+                onChange={(e) => setNoteTitle(e.target.value)}
+                placeholder="Enter note title..."
+                className="bg-gray-800 text-white px-4 py-2 rounded-lg w-64"
+              />
+            </div>
             <div className="flex gap-4">
               <button
                 onClick={handleSave}
