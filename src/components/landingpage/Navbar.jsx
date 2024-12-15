@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { auth } from '../../lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { Home, Layout, Upload, LogOut, LogIn, User, Menu, X } from 'lucide-react';
+import VideoUploadModal from '../VideoUploadModal';
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
@@ -11,6 +12,7 @@ export default function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -44,6 +46,16 @@ export default function Navbar() {
     } catch (error) {
       console.error('Error logging out:', error);
     }
+  };
+
+  const handleGenerateNotesClick = async() => {
+    // First scroll to top instantly
+    window.scrollTo(0, 0);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    // Use requestAnimationFrame to ensure the scroll is complete before opening modal
+    requestAnimationFrame(() => {
+      setIsVideoModalOpen(true);
+    });
   };
 
   return (
@@ -89,11 +101,13 @@ export default function Navbar() {
               <Upload className="w-5 h-5 text-zinc-500 group-hover:text-blue-400 transition-colors" />
               <span className="text-sm font-medium">Upload Notes</span>
             </Link>
-            <Link href="/flashcards" className="group flex items-center space-x-2 
-              text-zinc-400 hover:text-white transition-all duration-300">
+            <button
+              onClick={handleGenerateNotesClick}
+              className="group flex items-center space-x-2 text-zinc-400 hover:text-white transition-all duration-300"
+            >
               <Home className="w-5 h-5 text-zinc-500 group-hover:text-purple-400 transition-colors" />
               <span className="text-sm font-medium">Generate Notes</span>
-            </Link>
+            </button>
           </div>
 
           {/* Desktop Auth Buttons */}
@@ -170,13 +184,16 @@ export default function Navbar() {
                   <span>Upload Notes</span>
                 </div>
               </Link>
-              <Link href="/flashcards" className="block px-3 py-2 rounded-md text-base font-medium 
-                text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all duration-300">
+              <button
+                onClick={handleGenerateNotesClick}
+                className="block w-full px-3 py-2 rounded-md text-base font-medium text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all duration-300"
+              >
                 <div className="flex items-center space-x-2">
                   <Home className="w-5 h-5" />
                   <span>Generate Notes</span>
+                  
                 </div>
-              </Link>
+              </button>
               
               {!user ? (
                 <>
@@ -208,6 +225,10 @@ export default function Navbar() {
           </div>
         )}
       </div>
+      <VideoUploadModal
+        isOpen={isVideoModalOpen}
+        onClose={() => setIsVideoModalOpen(false)}
+      />
     </nav>
   );
 }
