@@ -119,14 +119,14 @@
 import Groq from 'groq-sdk';
 
 export default async function generateNotes(groqApiKey, transcript) {
-    // Initialize the Groq client with the provided API key
-    const groq = new Groq({ apiKey: groqApiKey });
+  // Initialize the Groq client with the provided API key
+  const groq = new Groq({ apiKey: groqApiKey });
 
-    // Combine the transcript into a single string of text
-    const inputText = transcript.map((line) => line.text).join('\n');
+  // Combine the transcript into a single string of text
+  const inputText = transcript.map((line) => line.text).join("\n");
 
-    // User prompt, structured for Groq's LLM to create notes
-    const userPrompt = `Please structure the following transcript into notes adhering to the above guidelines:
+  // User prompt, structured for Groq's LLM to create notes
+  const userPrompt = `Please structure the following transcript into notes adhering to the above guidelines:
 
     ${inputText}`;
 
@@ -182,19 +182,19 @@ Provide the output as a JSON array of objects, where each object has:
 - **"content"**: A rich, detailed explanation of the topic, including examples, subpoints, and context.
 `;
 
-    let attempts = 0;
-    const maxAttempts = 3;
+  let attempts = 0;
+  const maxAttempts = 3;
 
-    while (attempts < maxAttempts) {
-        try {
-            // Generate the notes by sending a request to the LLM
-            const result = await groq.chat.completions.create({
-                model: "llama-3.1-8b-instant",
-                messages: [
-                    { role: "system", content: systemPrompt },
-                    { role: "user", content: userPrompt },
-                ],
-            });
+  while (attempts < maxAttempts) {
+    try {
+      // Generate the notes by sending a request to the LLM
+      const result = await groq.chat.completions.create({
+        model: "llama-3.1-8b-instant",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+      });
 
             let notes;
             try {
@@ -266,5 +266,5 @@ Provide only the rewritten text in plain text, nothing else.
                 return null;
             }
         }
-    }
-}
+      }
+    } 

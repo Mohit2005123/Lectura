@@ -19,7 +19,7 @@
     "clsx": "^2.1.1",
     "dotenv": "^16.4.7",
     "firebase": "^11.0.2",
-    "framer-motion": "^11.14.1",
+    "framer-motion": "^11.14.4",
     "groq-sdk": "^0.9.0",
     "html2pdf.js": "^0.10.2",
     "icons-react": "^3.7.1",
