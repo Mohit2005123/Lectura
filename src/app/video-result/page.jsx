@@ -1,21 +1,35 @@
 'use client';
 import { useVideoContext } from '../../context/VideoContext';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import html2pdf from 'html2pdf.js';
-import { FaDownload, FaFilePdf, FaTrash } from 'react-icons/fa';
+import { FaDownload, FaFilePdf, FaTrash, FaSave } from 'react-icons/fa';
 import Navbar from '../../components/landingpage/Navbar';
+import { db, auth } from '../../lib/firebase';
+import { collection, addDoc, doc, updateDoc, arrayUnion, getDoc, setDoc, query, where, getDocs } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export default function VideoPage() {
   const { videoData, setVideoData } = useVideoContext();
   const contentRef = useRef(null);
   const hiddenContentRef = useRef(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [user, setUser] = useState(null);
+  const [currentNoteId, setCurrentNoteId] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleHeadingChange = (index, newHeading) => {
     const updatedData = [...videoData];
     updatedData[index] = { ...updatedData[index], heading: newHeading };
     setVideoData(updatedData);
   };
-
+  
   const handleContentChange = (index, newContent) => {
     const updatedData = [...videoData];
     updatedData[index] = { ...updatedData[index], content: newContent };
@@ -33,6 +47,83 @@ export default function VideoPage() {
   const handleDeleteSection = (indexToDelete) => {
     const updatedData = videoData.filter((_, index) => index !== indexToDelete);
     setVideoData(updatedData);
+  };
+
+  const handleSave = async () => {
+    if (!user) {
+      alert('Please login to save notes');
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      const userId = user.uid;
+
+      // Check if there's already a note for this video
+      if (!currentNoteId) {
+        // Query to find existing note
+        const notesRef = collection(db, 'notes');
+        const q = query(
+          notesRef, 
+          where('userId', '==', userId)
+          // Add any other specific identifiers for the video if available
+        );
+        
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+          // Use the first existing note
+          const existingNote = querySnapshot.docs[0];
+          setCurrentNoteId(existingNote.id);
+          
+          // Update existing note
+          const noteRef = doc(db, 'notes', existingNote.id);
+          await updateDoc(noteRef, {
+            content: videoData,
+            updatedAt: new Date()
+          });
+        } else {
+          // Create new note if none exists
+          const notesCollection = collection(db, 'notes');
+          const noteDoc = await addDoc(notesCollection, {
+            content: videoData,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            userId: userId
+          });
+          
+          setCurrentNoteId(noteDoc.id);
+
+          // Update user's notes array
+          const userRef = doc(db, 'users', userId);
+          const userDoc = await getDoc(userRef);
+          
+          if (!userDoc.exists()) {
+            await setDoc(userRef, {
+              notes: [noteDoc.id]
+            });
+          } else {
+            await updateDoc(userRef, {
+              notes: arrayUnion(noteDoc.id)
+            });
+          }
+        }
+      } else {
+        // Update existing note
+        const noteRef = doc(db, 'notes', currentNoteId);
+        await updateDoc(noteRef, {
+          content: videoData,
+          updatedAt: new Date()
+        });
+      }
+
+      alert('Notes saved successfully!');
+    } catch (error) {
+      console.error('Error saving notes:', error);
+      alert('Failed to save notes. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   if (!videoData || videoData.length === 0) {
@@ -114,18 +205,30 @@ export default function VideoPage() {
       <Navbar />
       <div className="min-h-screen bg-black py-8 px-4 sm:px-6 lg:px-8 pt-20">
         <div className="max-w-4xl mx-auto">
-          {/* Header Section - now only with Download button */}
+          {/* Header Section - now with both Download and Save buttons */}
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold text-white">
               Generated Notes
             </h1>
-            <button
-              onClick={handleDownload}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
-            >
-              <FaDownload />
-              Download PDF
-            </button>
+            <div className="flex gap-4">
+              <button
+                onClick={handleSave}
+                disabled={isSaving}
+                className={`flex items-center gap-2 ${
+                  isSaving ? 'bg-gray-600' : 'bg-green-600 hover:bg-green-700'
+                } text-white px-4 py-2 rounded-lg transition-colors duration-200`}
+              >
+                <FaSave />
+                {isSaving ? 'Saving...' : 'Save Notes'}
+              </button>
+              <button
+                onClick={handleDownload}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+              >
+                <FaDownload />
+                Download PDF
+              </button>
+            </div>
           </div>
 
           {/* Main Content */}
