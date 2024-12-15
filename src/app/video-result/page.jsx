@@ -165,10 +165,10 @@ export default function VideoPage() {
                     <div
                       contentEditable
                       suppressContentEditableWarning
-                      onBlur={(e) => handleContentChange(index, e.target.textContent)}
+                      onBlur={(e) => handleContentChange(index, e.target.innerHTML)}
+                      dangerouslySetInnerHTML={{ __html: section.content }}
                       className="text-gray-300 leading-relaxed whitespace-pre-wrap outline-none focus:ring-2 focus:ring-blue-500 rounded px-2"
                     >
-                      {section.content}
                     </div>
                   </div>
                 </div>
