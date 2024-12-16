@@ -26,15 +26,15 @@ export default function VideoPage() {
   }, []);
 
   const handleHeadingChange = (index, newHeading) => {
-    const updatedData = [...videoData];
-    updatedData[index] = { ...updatedData[index], heading: newHeading };
-    setVideoData(updatedData);
+    const updatedNotes = [...videoData.notes];
+    updatedNotes[index] = { ...updatedNotes[index], heading: newHeading };
+    setVideoData({ ...videoData, notes: updatedNotes });
   };
   
   const handleContentChange = (index, newContent) => {
-    const updatedData = [...videoData];
-    updatedData[index] = { ...updatedData[index], content: newContent };
-    setVideoData(updatedData);
+    const updatedNotes = [...videoData.notes];
+    updatedNotes[index] = { ...updatedNotes[index], content: newContent };
+    setVideoData({ ...videoData, notes: updatedNotes });
   };
 
   const handleAddNewSection = () => {
@@ -42,12 +42,12 @@ export default function VideoPage() {
       heading: "New Section",
       content: "Add your content here..."
     };
-    setVideoData([...videoData, newSection]);
+    setVideoData({ ...videoData, notes: [...videoData.notes, newSection] });
   };
 
   const handleDeleteSection = (indexToDelete) => {
-    const updatedData = videoData.filter((_, index) => index !== indexToDelete);
-    setVideoData(updatedData);
+    const updatedNotes = videoData.notes.filter((_, index) => index !== indexToDelete);
+    setVideoData({ ...videoData, notes: updatedNotes });
   };
 
   const handleSave = async () => {
@@ -79,7 +79,7 @@ export default function VideoPage() {
         const existingNote = querySnapshot.docs[0];
         const noteRef = doc(db, 'notes', existingNote.id);
         await updateDoc(noteRef, {
-          content: videoData,
+          content: videoData.notes,
           updatedAt: new Date()
         });
         setCurrentNoteId(existingNote.id);
@@ -88,10 +88,11 @@ export default function VideoPage() {
         const notesCollection = collection(db, 'notes');
         const noteDoc = await addDoc(notesCollection, {
           title: noteTitle,
-          content: videoData,
+          content: videoData.notes,
           createdAt: new Date(),
           updatedAt: new Date(),
-          userId: userId
+          userId: userId,
+          link:videoData.link
         });
         
         setCurrentNoteId(noteDoc.id);
@@ -120,7 +121,7 @@ export default function VideoPage() {
     }
   };
 
-  if (!videoData || videoData.length === 0) {
+  if (!videoData?.notes || videoData.notes.length === 0) {
     return (
       <>
         <Navbar />
@@ -240,7 +241,7 @@ export default function VideoPage() {
             className="bg-black rounded-xl shadow-lg p-8 mb-4 border border-gray-800"
           >
             <div className="space-y-8">
-              {videoData.map((section, index) => (
+              {videoData.notes.map((section, index) => (
                 <div 
                   key={index}
                   className="pb-6 border-b border-gray-700 last:border-0 relative group"
