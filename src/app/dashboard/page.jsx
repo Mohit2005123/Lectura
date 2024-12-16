@@ -7,17 +7,7 @@ import Navbar from '../../components/landingpage/Navbar';
 import { SparklesCore } from '../../components/ui/sparkles';
 import FlashCardModal from "@/components/dashboard/flashcard_modal";
 import { useRouter } from 'next/navigation';
-
-const NoteCard = ({ title, onClick }) => {
-  return (
-    <div 
-      onClick={onClick}
-      className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-200 h-full cursor-pointer"
-    >
-      <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
-    </div>
-  );
-};
+import NoteCard from '@/components/dashboard/NoteCard';
 
 const DashboardPage = () => {
   const router = useRouter();
@@ -91,6 +81,10 @@ const DashboardPage = () => {
     router.push(`/notes/${noteId}`);
   };
 
+  const handleQuizGeneration = (note) => {
+    // Implement quiz generation logic here
+  };
+
   return (
     <div className="min-h-screen bg-black">
       <div className="fixed top-0 left-0 right-0 z-50">
@@ -127,25 +121,21 @@ const DashboardPage = () => {
             </div>
           ) : (
             notes.map((note) => (
-              <div className="h-[28rem] flex flex-col justify-between" key={note.id}>
+              <div className="h-[28rem]" key={note.id}>
                 <NoteCard 
                   title={note.title}
+                  content={note.content || []}
                   onClick={() => handleCardClick(note.id)}
+                  onFlashcardClick={() => openModal(note)}
+                  onQuizClick={() => handleQuizGeneration(note)}
                 />
-                <button
-                  onClick={() => openModal(note)}
-                  className="w-full mt-12 mb-4 px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg 
-                  hover:from-purple-600 hover:to-blue-600 transition-all duration-200 shadow-lg 
-                  font-medium text-sm flex items-center justify-center"
-                >
-                  <span>Open Flashcards</span>
-                </button>
               </div>
             ))
           )}
         </div>
 
         <FlashCardModal
+        
           isOpen={isModalOpen}
           onClose={closeModal}
           card={selectedCard}
@@ -156,3 +146,4 @@ const DashboardPage = () => {
 };
 
 export default DashboardPage;
+
