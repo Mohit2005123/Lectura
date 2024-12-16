@@ -6,6 +6,7 @@ import {useRouter} from 'next/navigation';
 export default function VideoUploadModal({ isOpen, onClose, onSubmit }) {
   const { setVideoData } = useVideoContext();
   const router=useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -14,6 +15,7 @@ export default function VideoUploadModal({ isOpen, onClose, onSubmit }) {
     }
   }, [isOpen]);
   const handleSubmit = async (inputValue) => {
+    setIsLoading(true);
     try {
       const response = await axios.post("/api/generateNotes", { link: inputValue }); // Make a POST request to the API
       setVideoData(response.data.notes); // Store the data in Context
@@ -22,6 +24,8 @@ export default function VideoUploadModal({ isOpen, onClose, onSubmit }) {
       onClose(); // Close the modal
     } catch (error) {
       console.error("Error uploading video:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
   return (
@@ -73,12 +77,19 @@ export default function VideoUploadModal({ isOpen, onClose, onSubmit }) {
                   required
                 />
               </div>
-              <button
-                type="submit"
-                className="w-full px-6 py-4 bg-gradient-to-r from-violet-600 to-blue-600 text-white font-semibold rounded-xl shadow-md hover:shadow-violet-500/50 transform hover:-translate-y-1 hover:scale-105 transition-all duration-300"
-              >
-                Submit
-              </button>
+              {isLoading ? (
+                <div className="w-full px-6 py-4 bg-gradient-to-r from-violet-600 to-blue-600 text-white font-semibold rounded-xl flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                  <span className="ml-3">Processing...</span>
+                </div>
+              ) : (
+                <button
+                  type="submit"
+                  className="w-full px-6 py-4 bg-gradient-to-r from-violet-600 to-blue-600 text-white font-semibold rounded-xl shadow-md hover:shadow-violet-500/50 transform hover:-translate-y-1 hover:scale-105 transition-all duration-300"
+                >
+                  Submit
+                </button>
+              )}
             </form>
           </motion.div>
         </motion.div>

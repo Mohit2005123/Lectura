@@ -4,14 +4,16 @@ import Features from '../components/Features'
 import Navbar from '../components/landingpage/Navbar'
 import Pricing from '../components/pricing'
 import Footer from '../components/footer'
+import {TimelineDemo}  from '@/components/usage'
 export default function Home() {
   return (
     <div className="w-[100%] bg-[#0f0f11] ">
       <Navbar/>
       <Hero />
       <Features />
-      <Pricing/>
-      <Footer/>
+      {/* <Pricing/> */}
+      <TimelineDemo />
+      {/* <Footer/> */}
     </div>
   )
 }
