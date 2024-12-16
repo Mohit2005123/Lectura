@@ -19,6 +19,8 @@ export default function VideoPage() {
   const [error, setError] = useState(null);
   const [videoData, setVideoData] = useState([]);
   const [currentNoteId, setCurrentNoteId] = useState(null);
+  const [videoLink, setVideoLink] = useState("");
+  const [isVideoVisible, setIsVideoVisible] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -41,6 +43,7 @@ export default function VideoPage() {
           const noteData = noteSnap.data();
           setVideoData(noteData.content);
           setNoteTitle(noteData.title);
+          setVideoLink(noteData.link || "");
           setCurrentNoteId(params.id);
         } else {
           setError('Note not found');
@@ -202,10 +205,17 @@ export default function VideoPage() {
       });
   };
 
+  const getYoutubeVideoId = (url) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+
   return (
     <>
       <style jsx>{`
         .pdf-mode {
+        
           background-color: white !important;
           color: black !important;
           padding: 20px !important;
@@ -239,8 +249,8 @@ export default function VideoPage() {
       `}</style>
 
       <Navbar />
-      <div className="min-h-screen bg-black py-8 px-4 sm:px-6 lg:px-8 pt-20">
-        <div className="max-w-4xl mx-auto">
+      <div className="min-h-screen bg-black py-8 pt-20">
+        <div className={`mx-auto ${isVideoVisible ? 'px-1 sm:px-2 lg:px-4' : 'px-4 sm:px-6 lg:px-8 max-w-7xl'}`}>
           {/* Header Section - now with both Download and Save buttons */}
           <div className="flex justify-between items-center mb-8">
             <div>
@@ -256,6 +266,14 @@ export default function VideoPage() {
               />
             </div>
             <div className="flex gap-4">
+              {videoLink && (
+                <button
+                  onClick={() => setIsVideoVisible(!isVideoVisible)}
+                  className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                >
+                  {isVideoVisible ? 'Hide Video' : 'Play Video'}
+                </button>
+              )}
               <button
                 onClick={handleSave}
                 disabled={isSaving}
@@ -276,62 +294,85 @@ export default function VideoPage() {
             </div>
           </div>
 
-          {/* Main Content */}
-          <div
-            ref={contentRef}
-            className="bg-black rounded-xl shadow-lg p-8 mb-4 border border-gray-800"
-          >
-            <div className="space-y-8">
-              {videoData.map((section, index) => (
-                <div 
-                  key={index}
-                  className="pb-6 border-b border-gray-700 last:border-0 relative group"
-                >
-                  <div className="absolute right-0 top-0">
-                    <button
-                      onClick={() => handleDeleteSection(index)}
-                      className="text-red-500 hover:text-red-600 p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                      title="Delete section"
-                    >
-                      <FaTrash />
-                    </button>
-                  </div>
-                  <h2 className="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
-                    <span className="w-8 h-8 flex items-center justify-center bg-blue-900 text-blue-200 rounded-full text-sm">
-                      {index + 1}
-                    </span>
-                    <div
-                      contentEditable
-                      suppressContentEditableWarning
-                      onBlur={(e) => handleHeadingChange(index, e.target.textContent)}
-                      className="outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 w-full"
-                    >
-                      {section.heading}
-                    </div>
-                  </h2>
-                  <div className="pl-10">
-                    <div
-                      contentEditable
-                      suppressContentEditableWarning
-                      onBlur={(e) => handleContentChange(index, e.target.innerHTML)}
-                      dangerouslySetInnerHTML={{ __html: section.content }}
-                      className="text-gray-300 leading-relaxed whitespace-pre-wrap outline-none focus:ring-2 focus:ring-blue-500 rounded px-2"
-                    >
-                    </div>
-                  </div>
+          {/* Main Content with Video Section */}
+          <div className={`flex ${isVideoVisible ? 'gap-2' : 'gap-4'}`}>
+            {/* Video Section */}
+            {isVideoVisible && videoLink && (
+              <div className="w-2/5 sticky top-24 h-[calc(100vh-6rem)]">
+                <div className="rounded-xl overflow-hidden h-full">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${getYoutubeVideoId(videoLink)}`}
+                    title="YouTube video player"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                  ></iframe>
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+            )}
 
-          {/* Add Section button moved to bottom */}
-          <div className="flex justify-center mb-8">
-            <button
-              onClick={handleAddNewSection}
-              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors duration-200 text-lg"
-            >
-              + Add New Section
-            </button>
+            {/* Notes Section */}
+            <div className={`${isVideoVisible ? 'w-3/5' : 'w-full'}`}>
+              <div
+                ref={contentRef}
+                className={`bg-black rounded-xl shadow-lg border border-gray-800 ${
+                  isVideoVisible ? 'p-6' : 'p-8'
+                } mb-4`}
+              >
+                <div className="space-y-8">
+                  {videoData.map((section, index) => (
+                    <div 
+                      key={index}
+                      className="pb-6 border-b border-gray-700 last:border-0 relative group"
+                    >
+                      <div className="absolute right-0 top-0">
+                        <button
+                          onClick={() => handleDeleteSection(index)}
+                          className="text-red-500 hover:text-red-600 p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                          title="Delete section"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                      <h2 className="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
+                        <span className="w-8 h-8 flex items-center justify-center bg-blue-900 text-blue-200 rounded-full text-sm">
+                          {index + 1}
+                        </span>
+                        <div
+                          contentEditable
+                          suppressContentEditableWarning
+                          onBlur={(e) => handleHeadingChange(index, e.target.textContent)}
+                          className="outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 w-full"
+                        >
+                          {section.heading}
+                        </div>
+                      </h2>
+                      <div className="pl-10">
+                        <div
+                          contentEditable
+                          suppressContentEditableWarning
+                          onBlur={(e) => handleContentChange(index, e.target.innerHTML)}
+                          dangerouslySetInnerHTML={{ __html: section.content }}
+                          className="text-gray-300 leading-relaxed whitespace-pre-wrap outline-none focus:ring-2 focus:ring-blue-500 rounded px-2"
+                        >
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Add Section button */}
+              <div className={`flex justify-center ${isVideoVisible ? 'mb-6' : 'mb-8'}`}>
+                <button
+                  onClick={handleAddNewSection}
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors duration-200 text-lg"
+                >
+                  + Add New Section
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Footer */}
