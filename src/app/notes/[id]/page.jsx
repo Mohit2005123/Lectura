@@ -1,21 +1,25 @@
 'use client';
-import { useVideoContext } from '../../context/VideoContext';
 import { useRef, useState, useEffect } from 'react';
 import html2pdf from 'html2pdf.js';
 import { FaDownload, FaFilePdf, FaTrash, FaSave } from 'react-icons/fa';
-import Navbar from '../../components/landingpage/Navbar';
-import { db, auth } from '../../lib/firebase';
-import { collection, addDoc, doc, updateDoc, arrayUnion, getDoc, setDoc, query, where, getDocs } from 'firebase/firestore';
+import Navbar from '../../../components/landingpage/Navbar';
+import { db, auth } from '../../../lib/firebase';
+import { doc, getDoc, updateDoc, collection, addDoc, query, where, getDocs, setDoc, arrayUnion } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
+import { useParams } from 'next/navigation';
 
 export default function VideoPage() {
-  const { videoData, setVideoData } = useVideoContext();
+  const params = useParams();
   const contentRef = useRef(null);
   const hiddenContentRef = useRef(null);
   const [isSaving, setIsSaving] = useState(false);
   const [user, setUser] = useState(null);
-  const [currentNoteId, setCurrentNoteId] = useState(null);
   const [noteTitle, setNoteTitle] = useState("Untitled Note");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [videoData, setVideoData] = useState([]);
+  const [currentNoteId, setCurrentNoteId] = useState(null);
+  const [videoLink, setVideoLink] = useState("");
   const [isVideoVisible, setIsVideoVisible] = useState(false);
 
   useEffect(() => {
@@ -26,16 +30,45 @@ export default function VideoPage() {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    const fetchNote = async () => {
+      if (!params.id) return;
+
+      try {
+        setIsLoading(true);
+        const noteRef = doc(db, 'notes', params.id);
+        const noteSnap = await getDoc(noteRef);
+
+        if (noteSnap.exists()) {
+          const noteData = noteSnap.data();
+          setVideoData(noteData.content);
+          setNoteTitle(noteData.title);
+          setVideoLink(noteData.link || "");
+          setCurrentNoteId(params.id);
+        } else {
+          setError('Note not found');
+        }
+      } catch (err) {
+        console.error('Error fetching note:', err);
+        setError('Failed to load note');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchNote();
+  }, [params.id]);
+
   const handleHeadingChange = (index, newHeading) => {
-    const updatedNotes = [...videoData.notes];
-    updatedNotes[index] = { ...updatedNotes[index], heading: newHeading };
-    setVideoData({ ...videoData, notes: updatedNotes });
+    const updatedData = [...videoData];
+    updatedData[index] = { ...updatedData[index], heading: newHeading };
+    setVideoData(updatedData);
   };
   
   const handleContentChange = (index, newContent) => {
-    const updatedNotes = [...videoData.notes];
-    updatedNotes[index] = { ...updatedNotes[index], content: newContent };
-    setVideoData({ ...videoData, notes: updatedNotes });
+    const updatedData = [...videoData];
+    updatedData[index] = { ...updatedData[index], content: newContent };
+    setVideoData(updatedData);
   };
 
   const handleAddNewSection = () => {
@@ -43,12 +76,12 @@ export default function VideoPage() {
       heading: "New Section",
       content: "Add your content here..."
     };
-    setVideoData({ ...videoData, notes: [...videoData.notes, newSection] });
+    setVideoData([...videoData, newSection]);
   };
 
   const handleDeleteSection = (indexToDelete) => {
-    const updatedNotes = videoData.notes.filter((_, index) => index !== indexToDelete);
-    setVideoData({ ...videoData, notes: updatedNotes });
+    const updatedData = videoData.filter((_, index) => index !== indexToDelete);
+    setVideoData(updatedData);
   };
 
   const handleSave = async () => {
@@ -66,38 +99,26 @@ export default function VideoPage() {
       setIsSaving(true);
       const userId = user.uid;
 
-      // Query to check if a note with the same title exists
-      const notesRef = collection(db, 'notes');
-      const q = query(
-        notesRef, 
-        where('userId', '==', userId),
-        where('title', '==', noteTitle)
-      );
-      const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
+      if (currentNoteId) {
         // Update existing note
-        const existingNote = querySnapshot.docs[0];
-        const noteRef = doc(db, 'notes', existingNote.id);
+        const noteRef = doc(db, 'notes', currentNoteId);
         await updateDoc(noteRef, {
-          content: videoData.notes,
+            title:noteTitle,
+          content: videoData,
           updatedAt: new Date()
         });
-        setCurrentNoteId(existingNote.id);
       } else {
         // Create new note
         const notesCollection = collection(db, 'notes');
         const noteDoc = await addDoc(notesCollection, {
           title: noteTitle,
-          content: videoData.notes,
+          content: videoData,
           createdAt: new Date(),
           updatedAt: new Date(),
-          userId: userId,
-          link:videoData.link
+          userId: userId
         });
         
         setCurrentNoteId(noteDoc.id);
-
         // Update user's notes array with the new note ID
         const userRef = doc(db, 'users', userId);
         const userDoc = await getDoc(userRef);
@@ -122,13 +143,29 @@ export default function VideoPage() {
     }
   };
 
-  const getYoutubeVideoId = (url) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
-  };
+  if (isLoading) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen flex items-center justify-center bg-black">
+          <div className="text-white">Loading...</div>
+        </div>
+      </>
+    );
+  }
 
-  if (!videoData?.notes || videoData.notes.length === 0) {
+  if (error) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen flex items-center justify-center bg-black">
+          <div className="text-red-500">{error}</div>
+        </div>
+      </>
+    );
+  }
+
+  if (!videoData || videoData.length === 0) {
     return (
       <>
         <Navbar />
@@ -168,10 +205,17 @@ export default function VideoPage() {
       });
   };
 
+  const getYoutubeVideoId = (url) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+
   return (
     <>
       <style jsx>{`
         .pdf-mode {
+        
           background-color: white !important;
           color: black !important;
           padding: 20px !important;
@@ -207,7 +251,7 @@ export default function VideoPage() {
       <Navbar />
       <div className="min-h-screen bg-black py-8 pt-20">
         <div className={`mx-auto ${isVideoVisible ? 'px-1 sm:px-2 lg:px-4' : 'px-4 sm:px-6 lg:px-8 max-w-7xl'}`}>
-          {/* Header Section */}
+          {/* Header Section - now with both Download and Save buttons */}
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="text-3xl font-bold text-white mb-4">
@@ -222,7 +266,7 @@ export default function VideoPage() {
               />
             </div>
             <div className="flex gap-4">
-              {videoData.link && (
+              {videoLink && (
                 <button
                   onClick={() => setIsVideoVisible(!isVideoVisible)}
                   className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
@@ -253,11 +297,11 @@ export default function VideoPage() {
           {/* Main Content with Video Section */}
           <div className={`flex ${isVideoVisible ? 'gap-2' : 'gap-4'}`}>
             {/* Video Section */}
-            {isVideoVisible && videoData.link && (
+            {isVideoVisible && videoLink && (
               <div className="w-2/5 sticky top-24 h-[calc(100vh-6rem)]">
                 <div className="rounded-xl overflow-hidden h-full">
                   <iframe
-                    src={`https://www.youtube.com/embed/${getYoutubeVideoId(videoData.link)}`}
+                    src={`https://www.youtube.com/embed/${getYoutubeVideoId(videoLink)}`}
                     title="YouTube video player"
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -277,7 +321,7 @@ export default function VideoPage() {
                 } mb-4`}
               >
                 <div className="space-y-8">
-                  {videoData.notes.map((section, index) => (
+                  {videoData.map((section, index) => (
                     <div 
                       key={index}
                       className="pb-6 border-b border-gray-700 last:border-0 relative group"
@@ -318,7 +362,7 @@ export default function VideoPage() {
                   ))}
                 </div>
               </div>
-
+              
               {/* Add Section button */}
               <div className={`flex justify-center ${isVideoVisible ? 'mb-6' : 'mb-8'}`}>
                 <button

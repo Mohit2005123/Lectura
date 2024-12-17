@@ -19,7 +19,7 @@ export async function POST(request) {
     if(!notes){
       return NextResponse.json({message:'Notes generation from AI failed'}, {status:500});
     }
-    return NextResponse.json({message:'Successfull', notes:notes}, {status:200});
+    return NextResponse.json({message:'Successfull', notes:notes, link:link}, {status:200});
   }
   catch(err){
     console.log(err);
