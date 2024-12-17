@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AnimatedTestimonialsDemo } from "./flashcard_body";
 
-export default function FlashCardModal({ isOpen, onClose }) {
+export default function FlashCardModal({ isOpen, onClose, card }) {
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "auto";
   }, [isOpen]);
@@ -24,11 +24,11 @@ export default function FlashCardModal({ isOpen, onClose }) {
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
-            transition={{ 
+            transition={{
               duration: 0.2,
               type: "spring",
               stiffness: 300,
-              damping: 25
+              damping: 25,
             }}
             onClick={(e) => e.stopPropagation()}
             className="relative bg-[#1f1f23] text-white rounded-xl shadow-xl w-11/12 max-w-4xl p-8 min-h-[400px]"
@@ -41,7 +41,8 @@ export default function FlashCardModal({ isOpen, onClose }) {
             </button>
 
             <h2 className="text-3xl font-bold mb-6 text-center">Flashcards</h2>
-            <AnimatedTestimonialsDemo />
+            {/* Pass the card prop as flashCards */}
+            <AnimatedTestimonialsDemo flashCards={card || []} />
           </motion.div>
         </motion.div>
       )}
