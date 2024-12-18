@@ -28,15 +28,16 @@ export const Timeline = ({ data }) => {
       ref={containerRef}
     >
       <div className="max-w-7xl mx-auto py-20 px-4 md:px-8 lg:px-10 md:mb-0">
-        <h2 className="text-lg md:text-4xl mb-4 text-white dark:text-white max-w-4xl">
+        <h2 className="text-3xl font-bold text-white mb-6">
           How It Works: Your Learning Roadmap
         </h2>
-        <p className="text-white dark:text-neutral-300 text-sm md:text-lg max-w-lg">
+        <p className="text-lg items-center text-neutral-300 max-w-2xl">
           Follow this simple yet effective 3-step process to generate AI-powered
-          notes, flashcards, and quizzes from your content, optimize your
-          learning strategy, and ace your exams with confidence.
+          notes, flashcards, and quizzes from your content. Optimize your
+          learning strategy and ace your exams with confidence.
         </p>
       </div>
+
       <div ref={ref} className="relative max-w-[79rem] mx-auto pb-20">
         {data.map((item, index) => (
           <div
