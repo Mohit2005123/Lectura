@@ -1,23 +1,25 @@
 "use client";
 import { IconArrowLeft, IconArrowRight } from "@tabler/icons-react";
 import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export const AnimatedTestimonials = ({ testimonials, autoplay = false }) => {
   const [active, setActive] = useState(0);
 
   const handleNext = () => {
-    setActive((prev) => (prev + 1) % testimonials.length);
+    if (active < testimonials.length - 1) {
+      setActive((prev) => prev + 1);
+    }
   };
-
+  
   const handlePrev = () => {
-    setActive((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+    if (active > 0) {
+      setActive((prev) => prev - 1);
+    }
   };
+  
 
-  const isActive = (index) => {
-    return index === active;
-  };
+  const isActive = (index) => index === active;
 
   useEffect(() => {
     if (autoplay) {
@@ -26,9 +28,8 @@ export const AnimatedTestimonials = ({ testimonials, autoplay = false }) => {
     }
   }, [autoplay]);
 
-  const randomRotateY = () => {
-    return Math.floor(Math.random() * 21) - 10;
-  };
+  const randomRotateY = () => Math.floor(Math.random() * 21) - 10;
+
   return (
     <div className="max-w-sm md:max-w-4xl mx-auto antialiased font-sans px-4 md:px-8 lg:px-12 py-20">
       <div className="relative flex items-center gap-4 md:gap-6">
@@ -40,7 +41,7 @@ export const AnimatedTestimonials = ({ testimonials, autoplay = false }) => {
           <AnimatePresence>
             {testimonials.map((testimonial, index) => (
               <motion.div
-                key={testimonial.name}
+                key={index} // Use index as fallback key
                 initial={{
                   opacity: 0,
                   scale: 0.9,
@@ -66,21 +67,19 @@ export const AnimatedTestimonials = ({ testimonials, autoplay = false }) => {
                 }}
                 className="absolute inset-0 flex items-center justify-center rounded-3xl"
                 style={{
-                  backgroundColor: `#${Math.floor(
-                    Math.random() * 16777215
-                  ).toString(16)}`,
+                  backgroundColor: `rgb(${Math.floor(Math.random() * 100)}, ${Math.floor(
+                    Math.random() * 100
+                  )}, ${Math.floor(Math.random() * 100)})`,
                 }}
+                
               >
                 {/* Content Inside the Div */}
                 <div className="text-center px-8">
-                  <h3 className="text-5xl font-bold md:pb-7 text-white">
-                    {testimonial.name}
+                  <h3 className="text-4xl font-bold md:pb-7 text-white">
+                    {testimonial.heading} {/* Use heading */}
                   </h3>
-                  {/* <p className="text-sm text-gray-200 mt-2">
-                    {testimonial.designation}
-                  </p> */}
-                  <motion.p className="text-3xl text-gray-200 mt-4">
-                    {testimonial.quote.split(" ").map((word, idx) => (
+                  <motion.p className="text-2xl text-gray-200 mt-4">
+                    {testimonial.content?.split(" ").map((word, idx) => (
                       <motion.span
                         key={idx}
                         initial={{

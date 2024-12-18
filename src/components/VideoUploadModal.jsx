@@ -18,8 +18,8 @@ export default function VideoUploadModal({ isOpen, onClose, onSubmit }) {
     setIsLoading(true);
     try {
       const response = await axios.post("/api/generateNotes", { link: inputValue }); // Make a POST request to the API
-      setVideoData(response.data.notes); // Store the data in Context
-      console.log(response.data.notes);
+      setVideoData(response.data); // Store the data in Context
+      console.log(response.data);
       router.push('/video-result'); // Redirect to the result page
       onClose(); // Close the modal
     } catch (error) {

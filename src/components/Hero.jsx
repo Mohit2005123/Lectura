@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import { useState } from "react";
 import VideoUploadModal from "./VideoUploadModal";
 import { Image1 } from "./Image1";
@@ -39,9 +39,11 @@ export default function Hero() {
         </div>
 
         <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-3xl mx-auto leading-relaxed animate-fade-in text-shadow-sm">
-          Convert any YouTube video into comprehensive notes, flashcards, and quizzes.
+          Convert any YouTube video into comprehensive notes, flashcards, and
+          quizzes.
           <span className="block mt-2 text-gray-300">
-            Study smarter with AI-powered content analysis and personalized learning tools.
+            Study smarter with AI-powered content analysis and personalized
+            learning tools.
           </span>
         </p>
 
@@ -50,9 +52,10 @@ export default function Hero() {
             className="px-8 py-4 bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 text-white font-semibold rounded-lg shadow-xl hover:shadow-violet-500/50 transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 text-lg"
             onClick={() => setIsModalOpen(true)}
           >
-            Get Started Upload your Video
+            Upload your Video
           </button>
-          <button className="px-8 py-4 bg-transparent border-2 border-violet-500/50 text-white font-semibold rounded-lg hover:bg-violet-500/20 backdrop-blur-sm transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 text-lg"
+          <button
+            className="px-8 py-4 bg-transparent border-2 border-violet-500/50 text-white font-semibold rounded-lg hover:bg-violet-500/20 backdrop-blur-sm transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 text-lg"
             onClick={() => setIsNotesModalOpen(true)}
           >
             Upload your Notes
