@@ -81,8 +81,9 @@ const DashboardPage = () => {
     router.push(`/notes/${noteId}`);
   };
 
-  const handleQuizGeneration = (note) => {
+  const handleQuizGeneration = (noteId) => {
     // Implement quiz generation logic here
+    router.push(`/quiz/${noteId}`);
   };
 
   return (
@@ -127,7 +128,7 @@ const DashboardPage = () => {
                   content={note.content || []}
                   onClick={() => handleCardClick(note.id)}
                   onFlashcardClick={() => openModal(note)}
-                  onQuizClick={() => handleQuizGeneration(note)}
+                  onQuizClick={() => handleQuizGeneration(note.id)}
                 />
               </div>
             ))
