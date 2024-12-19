@@ -7,6 +7,7 @@ import Navbar from '../../components/landingpage/Navbar';
 import { db, auth } from '../../lib/firebase';
 import { collection, addDoc, doc, updateDoc, arrayUnion, getDoc, setDoc, query, where, getDocs } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
+import ExpandableChatBox from '../../components/ExpandableChatBox'; // Assuming this is the chat component
 
 export default function VideoPage() {
   const { videoData, setVideoData } = useVideoContext();
@@ -17,6 +18,7 @@ export default function VideoPage() {
   const [currentNoteId, setCurrentNoteId] = useState(null);
   const [noteTitle, setNoteTitle] = useState("Untitled Note");
   const [isVideoVisible, setIsVideoVisible] = useState(false);
+  const [notes, setNotes] = useState([]); // Store notes for chat box
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -31,7 +33,7 @@ export default function VideoPage() {
     updatedNotes[index] = { ...updatedNotes[index], heading: newHeading };
     setVideoData({ ...videoData, notes: updatedNotes });
   };
-  
+
   const handleContentChange = (index, newContent) => {
     const updatedNotes = [...videoData.notes];
     updatedNotes[index] = { ...updatedNotes[index], content: newContent };
@@ -69,7 +71,7 @@ export default function VideoPage() {
       // Query to check if a note with the same title exists
       const notesRef = collection(db, 'notes');
       const q = query(
-        notesRef, 
+        notesRef,
         where('userId', '==', userId),
         where('title', '==', noteTitle)
       );
@@ -93,15 +95,15 @@ export default function VideoPage() {
           createdAt: new Date(),
           updatedAt: new Date(),
           userId: userId,
-          link:videoData.link
+          link: videoData.link
         });
-        
+
         setCurrentNoteId(noteDoc.id);
 
         // Update user's notes array with the new note ID
         const userRef = doc(db, 'users', userId);
         const userDoc = await getDoc(userRef);
-        
+
         if (!userDoc.exists()) {
           await setDoc(userRef, {
             notes: [noteDoc.id]
@@ -127,20 +129,6 @@ export default function VideoPage() {
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : null;
   };
-
-  if (!videoData?.notes || videoData.notes.length === 0) {
-    return (
-      <>
-        <Navbar />
-        <div className="min-h-screen flex items-center justify-center bg-black">
-          <div className="text-center p-8 bg-black rounded-lg shadow-lg border border-gray-800">
-            <FaFilePdf className="text-red-500 text-5xl mx-auto mb-4" />
-            <p className="text-white">No video data available. Please upload a video first.</p>
-          </div>
-        </div>
-      </>
-    );
-  }
 
   const handleDownload = () => {
     // Create a temporary copy of the content for PDF generation
@@ -168,6 +156,22 @@ export default function VideoPage() {
       });
   };
 
+  // Function to prepare the notes for the chat box
+  const prepareNotesForChat = (videoData) => {
+    if (!videoData?.notes || videoData.notes.length === 0) {
+      console.log("Mapping notes:", videoData.notes);
+      console.log("No notes available or notes are empty");
+      return []; // Return an empty array if no notes are available
+    }
+    
+    // Map videoData.notes into the expected structure
+    return videoData.notes.map((section) => ({
+      role: "assistant", // Assuming the notes are provided by the assistant
+      content: `${section.heading}: ${section.content}`, // Format the note's heading and content
+    }));
+  };
+  
+
   return (
     <>
       <style jsx>{`
@@ -175,32 +179,6 @@ export default function VideoPage() {
           background-color: white !important;
           color: black !important;
           padding: 20px !important;
-        }
-        
-        .pdf-mode h2 {
-          color: black !important;
-          font-weight: bold !important;
-        }
-        
-        .pdf-mode div[contenteditable] {
-          color: black !important;
-        }
-        
-        .pdf-mode .text-gray-300 {
-          color: #1f2937 !important;
-        }
-        
-        .pdf-mode span.w-8 {
-          background-color: #1e40af !important;
-          color: white !important;
-        }
-        
-        .pdf-mode .border-gray-700 {
-          border-color: #e5e7eb !important;
-        }
-        
-        .pdf-mode .border-gray-800 {
-          border-color: #d1d5db !important;
         }
       `}</style>
 
@@ -210,9 +188,7 @@ export default function VideoPage() {
           {/* Header Section */}
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-white mb-4">
-                Generated Notes
-              </h1>
+              <h1 className="text-3xl font-bold text-white mb-4">Generated Notes</h1>
               <input
                 type="text"
                 value={noteTitle}
@@ -233,9 +209,8 @@ export default function VideoPage() {
               <button
                 onClick={handleSave}
                 disabled={isSaving}
-                className={`flex items-center gap-2 ${
-                  isSaving ? 'bg-gray-600' : 'bg-green-600 hover:bg-green-700'
-                } text-white px-4 py-2 rounded-lg transition-colors duration-200`}
+                className={`flex items-center gap-2 ${isSaving ? 'bg-gray-600' : 'bg-green-600 hover:bg-green-700'
+                  } text-white px-4 py-2 rounded-lg transition-colors duration-200`}
               >
                 <FaSave />
                 {isSaving ? 'Saving...' : 'Save Notes'}
@@ -250,100 +225,62 @@ export default function VideoPage() {
             </div>
           </div>
 
-          {/* Main Content with Video Section */}
-          <div className={`flex ${isVideoVisible ? 'gap-2' : 'gap-4'}`}>
-            {/* Video Section */}
-            {isVideoVisible && videoData.link && (
-              <div className="w-2/5 sticky top-24 h-[calc(100vh-6rem)]">
-                <div className="rounded-xl overflow-hidden h-full">
-                  <iframe
-                    src={`https://www.youtube.com/embed/${getYoutubeVideoId(videoData.link)}`}
-                    title="YouTube video player"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="w-full h-full"
-                  ></iframe>
-                </div>
-              </div>
-            )}
-
-            {/* Notes Section */}
-            <div className={`${isVideoVisible ? 'w-3/5' : 'w-full'}`}>
-              <div
-                ref={contentRef}
-                className={`bg-black rounded-xl shadow-lg border border-gray-800 ${
-                  isVideoVisible ? 'p-6' : 'p-8'
-                } mb-4`}
-              >
-                <div className="space-y-8">
-                  {videoData.notes.map((section, index) => (
-                    <div 
-                      key={index}
-                      className="pb-6 border-b border-gray-700 last:border-0 relative group"
-                    >
-                      <div className="absolute right-0 top-0">
-                        <button
-                          onClick={() => handleDeleteSection(index)}
-                          className="text-red-500 hover:text-red-600 p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                          title="Delete section"
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
-                      <h2 className="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
-                        <span className="w-8 h-8 flex items-center justify-center bg-blue-900 text-blue-200 rounded-full text-sm">
-                          {index + 1}
-                        </span>
-                        <div
-                          contentEditable
-                          suppressContentEditableWarning
-                          onBlur={(e) => handleHeadingChange(index, e.target.textContent)}
-                          className="outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 w-full"
-                        >
-                          {section.heading}
-                        </div>
-                      </h2>
-                      <div className="pl-10">
-                        <div
-                          contentEditable
-                          suppressContentEditableWarning
-                          onBlur={(e) => handleContentChange(index, e.target.innerHTML)}
-                          dangerouslySetInnerHTML={{ __html: section.content }}
-                          className="text-gray-300 leading-relaxed whitespace-pre-wrap outline-none focus:ring-2 focus:ring-blue-500 rounded px-2"
-                        >
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Add Section button */}
-              <div className={`flex justify-center ${isVideoVisible ? 'mb-6' : 'mb-8'}`}>
-                <button
-                  onClick={handleAddNewSection}
-                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors duration-200 text-lg"
-                >
-                  + Add New Section
-                </button>
-              </div>
+          {/* Video Section */}
+          {isVideoVisible && videoData.link && (
+            <div className="mb-8">
+              <iframe
+                width="100%"
+                height="500"
+                src={`https://www.youtube.com/embed/${getYoutubeVideoId(videoData.link)}`}
+                frameBorder="0"
+                allowFullScreen
+              />
             </div>
+          )}
+
+          {/* Notes Section */}
+          <div className="bg-gray-800 rounded-lg p-6 text-white">
+            {videoData.notes.map((section, index) => (
+              <div key={index} className="mb-4">
+                <div className="flex justify-between">
+                  <input
+                    type="text"
+                    value={section.heading}
+                    onChange={(e) => handleHeadingChange(index, e.target.value)}
+                    className="bg-gray-700 text-white px-4 py-2 rounded-lg w-full mb-2"
+                  />
+                  <button
+                    onClick={() => handleDeleteSection(index)}
+                    className="ml-4 text-red-600 hover:text-red-800"
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
+                <textarea
+                  value={section.content}
+                  onChange={(e) => handleContentChange(index, e.target.value)}
+                  rows="4"
+                  className="bg-gray-700 text-white px-4 py-2 rounded-lg w-full"
+                />
+              </div>
+            ))}
+            <button
+              onClick={handleAddNewSection}
+              className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+            >
+              Add New Section
+            </button>
           </div>
 
-          {/* Footer */}
-          <div className="text-center text-gray-400 text-sm">
-            Generated by Lectura • {new Date().toLocaleDateString()}
+          {/* Chat Box */}
+          <div className="mt-8">
+            <ExpandableChatBox messages={prepareNotesForChat(videoData)} />
           </div>
+
         </div>
       </div>
-
-      {/* Hidden container for generating PDF */}
-      <div
-        ref={hiddenContentRef}
-        className="hidden"
-        style={{ position: 'absolute', top: 0, left: 0 }}
-      ></div>
+      <div ref={hiddenContentRef} className="hidden"></div>
     </>
   );
 }
+

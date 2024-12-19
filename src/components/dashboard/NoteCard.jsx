@@ -1,5 +1,4 @@
 import React from 'react';
-
 const NoteCard = ({ title, content, onClick, onFlashcardClick, onQuizClick }) => {
   return (
     <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-5 shadow-2xl hover:shadow-3xl transition-all duration-300 h-[450px] flex flex-col">

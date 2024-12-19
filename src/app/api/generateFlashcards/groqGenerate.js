@@ -8,7 +8,9 @@ export async function generateFlashcards(data) {
 }
 
 // Function to process the array and shorten each content using AI
-async function getShortenedFlashcards(dataArray) {
+async function 
+
+getShortenedFlashcards(dataArray) {
   const flashcards = [];
 
   for (const element of dataArray) {

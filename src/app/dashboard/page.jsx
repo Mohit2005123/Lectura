@@ -8,6 +8,9 @@ import { SparklesCore } from "../../components/ui/sparkles";
 import FlashCardModal from "@/components/dashboard/flashcard_modal";
 import { useRouter } from "next/navigation";
 import NoteCard from "@/components/dashboard/NoteCard";
+import { NotesProvider } from "@/context/NotesContext";
+import ExpandableChatBox from "../../components/ExpandableChatbox"; // Import ExpandableChatbox
+
 
 const DashboardPage = () => {
   const router = useRouter();
@@ -138,11 +141,13 @@ const DashboardPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-black relative">
+      {/* Navbar */}
       <div className="fixed top-0 left-0 right-0 z-50">
         <Navbar />
       </div>
 
+      {/* Main Content */}
       <div className="container mx-auto px-8 py-8 pt-24 max-w-[1200px] relative">
         <div className="h-[10rem] w-full flex flex-col items-center p-5 mt-10 overflow-hidden rounded-md">
           <h1 className="md:text-7xl text-xl lg:text-6xl font-bold text-center text-white relative z-20">
@@ -150,6 +155,7 @@ const DashboardPage = () => {
           </h1>
         </div>
 
+        {/* Sparkles Effect */}
         <div
           className="fixed inset-0 w-full h-full"
           style={{ top: "200px", zIndex: 10 }}
@@ -165,6 +171,7 @@ const DashboardPage = () => {
           <div className="absolute inset-0 w-full h-full bg-black [mask-image:radial-gradient(350px_200px_at_top,transparent_20%,white)]"></div>
         </div>
 
+        {/* Notes Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 mt-10 relative z-20">
           {isLoading ? (
             <div className="col-span-full flex justify-center items-center min-h-[400px]">
@@ -189,14 +196,21 @@ const DashboardPage = () => {
           )}
         </div>
 
+        {/* FlashCard Modal */}
         <FlashCardModal
           isOpen={isModalOpen}
           onClose={closeModal}
           card={selectedCard}
         />
       </div>
+
+      {/* Expandable ChatBox Component */}
+      <div className="fixed bottom-5 right-5 bg-white z-50">
+        <ExpandableChatBox />
+      </div>
     </div>
   );
 };
 
 export default DashboardPage;
+

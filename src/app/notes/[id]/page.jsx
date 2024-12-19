@@ -7,7 +7,7 @@ import { db, auth } from '../../../lib/firebase';
 import { doc, getDoc, updateDoc, collection, addDoc, query, where, getDocs, setDoc, arrayUnion } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useParams } from 'next/navigation';
-
+import ExpandableChatBox from '@/components/ExpandableChatbox'
 export default function VideoPage() {
   const params = useParams();
   const contentRef = useRef(null);
@@ -150,6 +150,7 @@ export default function VideoPage() {
         <div className="min-h-screen flex items-center justify-center bg-black">
           <div className="text-white">Loading...</div>
         </div>
+        <ExpandableChatBox />
       </>
     );
   }
@@ -161,6 +162,7 @@ export default function VideoPage() {
         <div className="min-h-screen flex items-center justify-center bg-black">
           <div className="text-red-500">{error}</div>
         </div>
+        
       </>
     );
   }
@@ -374,6 +376,7 @@ export default function VideoPage() {
               </div>
             </div>
           </div>
+          <ExpandableChatBox />
 
           {/* Footer */}
           <div className="text-center text-gray-400 text-sm">
