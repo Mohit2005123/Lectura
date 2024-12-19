@@ -6,7 +6,6 @@ import axios from 'axios'
 import { motion } from 'framer-motion'
 import Navbar from '../../../components/landingpage/Navbar'
 import { FiAward, FiCheck, FiX } from 'react-icons/fi'
-
 export default function QuizPage() {
   const { id } = useParams()
   const [quizData, setQuizData] = useState([])
