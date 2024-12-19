@@ -32,9 +32,9 @@ export default function Developers() {
           <BackgroundGradientDemo
             imgSrc="https://via.placeholder.com/400"
             description="Mohit Mongia"
-            githubLink="#"
+            githubLink="https://github.com/Mohit2005123"
             linkedinLink="https://www.linkedin.com/in/mongia-mohit/"
-            instagramLink="#"
+            instagramLink="https://www.instagram.com/mohit_mongia_2005/"
           />
         </div>
         <div className="items-center justify-center max-w-[30rem] max-h-[30rem] mb-10 mt-5">
@@ -43,16 +43,16 @@ export default function Developers() {
             description="Sparsh Gulati"
             githubLink="https://github.com/sparsh7637"
             linkedinLink="https://www.linkedin.com/in/sparsh-gulati-665032287/"
-            instagramLink="#"
+            instagramLink="https://www.instagram.com/sparsh_7637/"
           />
         </div>
         <div className="items-center justify-center max-w-[30rem] max-h-[30rem] mb-10 mt-10">
           <BackgroundGradientDemo
             imgSrc="https://via.placeholder.com/400"
             description="Vasu Reena Kush Varshney"
-            githubLink="#"
+            githubLink="https://github.com/Vasu-Varshneya"
             linkedinLink="https://www.linkedin.com/in/vasu-varshney-16b8a9278/"
-            instagramLink="#"
+            instagramLink="https://www.instagram.com/vasuvarshney28/#"
           />
         </div>
         <div className="items-center justify-center max-w-[30rem] max-h-[30rem] mb-10 mt-10">
