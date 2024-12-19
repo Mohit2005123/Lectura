@@ -5,21 +5,23 @@ import { useParams } from 'next/navigation'
 import axios from 'axios'
 import { motion } from 'framer-motion'
 import Navbar from '../../../components/landingpage/Navbar'
-import { FiAward, FiCheck, FiX } from 'react-icons/fi'
+import { FiAward, FiCheck, FiX, FiCpu } from 'react-icons/fi'
+
 export default function QuizPage() {
   const { id } = useParams()
   const [quizData, setQuizData] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
-
   const [userAnswers, setUserAnswers] = useState({})
   const [showResults, setShowResults] = useState(false)
   const [currentQuestion, setCurrentQuestion] = useState(0)
+  const [analysis, setAnalysis] = useState(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
 
   useEffect(() => {
     const fetchQuizData = async () => {
       try {
-        const response = await axios.post('/api/generateQuiz', { noteId:id })
+        const response = await axios.post('/api/generateQuiz', { noteId: id })
         console.log(response.data.quizData);
         setQuizData(response.data.quizData)
         setIsLoading(false)
@@ -47,9 +49,26 @@ export default function QuizPage() {
     let score = 0
     console.log(userAnswers);
     quizData.forEach((question, index) => {
-      if (userAnswers[index] === question.correct) score++
+      if (userAnswers[question.id] === question.correct) score++
     })
     return score
+  }
+
+  const handleAnalyze = async () => {
+    setIsAnalyzing(true)
+    try {
+      const response = await axios.post('/api/analyzeQuiz', {
+        quizData,
+        userAnswers,
+        score: calculateScore()
+      })
+      setAnalysis(response.data.analysis)
+    } catch (err) {
+      console.error(err)
+      setError('Failed to generate analysis. Please try again.')
+    } finally {
+      setIsAnalyzing(false)
+    }
   }
 
   if (isLoading) {
@@ -71,7 +90,7 @@ export default function QuizPage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 text-white p-6 pt-24">
+      <div className="min-h-screen bg-black text-white p-6 pt-24">
         <div className="max-w-2xl mx-auto">
           {!showResults ? (
             <motion.div 
@@ -111,9 +130,9 @@ export default function QuizPage() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       key={option}
-                      onClick={() => handleAnswerSelect(quizData[currentQuestion].id, index)}
+                      onClick={() => handleAnswerSelect(currentQuestion, index)}
                       className={`w-full text-left p-6 rounded-xl transition-all duration-300 ${
-                        userAnswers[quizData[currentQuestion].id] === index
+                        userAnswers[currentQuestion] === index
                           ? 'bg-white/15 border-2 border-white/30'
                           : 'bg-gray-900/50 hover:bg-white/10 border border-gray-800'
                       }`}
@@ -159,24 +178,81 @@ export default function QuizPage() {
               <div className="text-center mb-8">
                 <FiAward className="text-6xl mx-auto mb-6 text-yellow-500" />
                 <h2 className="text-3xl font-bold mb-6">Quiz Complete!</h2>
-              <div className="text-8xl font-bold mb-6 bg-gradient-to-r from-green-400 to-blue-500 text-transparent bg-clip-text">
-                {calculateScore()}/{quizData.length}
-              </div>
-              <div className="mb-8">
-                <div className="flex justify-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <FiCheck className="text-green-500" />
-                    <span>Correct: {calculateScore()}</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <FiX className="text-red-500" />
-                    <span>Incorrect: {quizData.length - calculateScore()}</span>
+                <div className="text-8xl font-bold mb-6 bg-gradient-to-r from-green-400 to-blue-500 text-transparent bg-clip-text">
+                  {calculateScore()}/{quizData.length}
+                </div>
+                <div className="mb-8">
+                  <div className="flex justify-center space-x-4">
+                    <div className="flex items-center space-x-2">
+                      <FiCheck className="text-green-500" />
+                      <span>Correct: {calculateScore()}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <FiX className="text-red-500" />
+                      <span>Incorrect: {quizData.length - calculateScore()}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-              </div>
 
-              <div className="space-y-6">
+              {!analysis ? (
+                <div className="mb-8">
+                  <button
+                    onClick={handleAnalyze}
+                    disabled={isAnalyzing}
+                    className="px-8 py-3 rounded-lg bg-gradient-to-r from-purple-500 to-indigo-600 hover:opacity-90 transition-opacity flex items-center justify-center space-x-2 w-full disabled:opacity-50"
+                  >
+                    <FiCpu className="text-xl" />
+                    <span>{isAnalyzing ? 'Analyzing...' : 'Analyze Using AI'}</span>
+                  </button>
+                </div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-8"
+                >
+                  <div className="bg-gray-900/50 p-6 rounded-xl space-y-4">
+                    <h3 className="text-xl font-semibold border-b border-gray-700 pb-2">
+                      AI Analysis Report
+                    </h3>
+                    
+                    <div>
+                      <h4 className="text-green-400 font-medium mb-2">Strengths</h4>
+                      <ul className="list-disc list-inside space-y-1">
+                        {analysis.strengths.map((strength, index) => (
+                          <li key={index} className="text-gray-300">{strength}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div>
+                      <h4 className="text-yellow-400 font-medium mb-2">Areas for Improvement</h4>
+                      <ul className="list-disc list-inside space-y-1">
+                        {analysis.areasForImprovement.map((area, index) => (
+                          <li key={index} className="text-gray-300">{area}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div>
+                      <h4 className="text-blue-400 font-medium mb-2">Recommendations</h4>
+                      <ul className="list-disc list-inside space-y-1">
+                        {analysis.recommendations.map((rec, index) => (
+                          <li key={index} className="text-gray-300">{rec}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="mt-4 p-4 bg-gray-800/50 rounded-lg">
+                      <p className="text-gray-200">{analysis.summary}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              <div className="space-y-6 mt-8">
+                <h3 className="text-2xl font-semibold mb-4">Detailed Review</h3>
                 {quizData.map((question, qIndex) => (
                   <div key={qIndex} className="bg-gray-900/50 p-6 rounded-xl">
                     <h3 className="text-xl font-semibold mb-4">{question.question}</h3>
@@ -195,7 +271,7 @@ export default function QuizPage() {
                           <div
                             key={oIndex}
                             className={`p-4 rounded-lg border ${bgColor} flex items-center justify-between`}
-              >
+                          >
                             <span>{option}</span>
                             {isCorrect && <FiCheck className="text-green-500" />}
                             {isSelected && !isCorrect && <FiX className="text-red-500" />}
@@ -205,10 +281,10 @@ export default function QuizPage() {
                     </div>
                     {userAnswers[question.id] === undefined && (
                       <div className="mt-2 text-yellow-500 text-sm">Not attempted</div>
-          )}
-        </div>
+                    )}
+                  </div>
                 ))}
-      </div>
+              </div>
 
               <div className="text-center mt-8">
                 <button
@@ -223,5 +299,5 @@ export default function QuizPage() {
         </div>
       </div>
     </>
-  )
+  );
 }
