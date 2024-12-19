@@ -6,6 +6,7 @@ import Footer from '../components/footer'
 import {TimelineDemo}  from '@/components/usage'
 import { InfiniteMovingCardsDemo } from '@/components/testimonial'
 import DemoVideo from '@/components/vidplayer'
+import Developers from '@/components/developers'
 
 export default function Home() {
   return (
@@ -16,6 +17,7 @@ export default function Home() {
       {/* <Pricing/> */}
       <DemoVideo />
       <TimelineDemo />
+      <Developers />
       {/* <InfiniteMovingCardsDemo /> */}
       <Footer/>
     </div>
