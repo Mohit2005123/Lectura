@@ -1,3 +1,4 @@
+'use client';
 import { Youtube, BookOpen, Brain } from 'lucide-react'
 
 const features = [
