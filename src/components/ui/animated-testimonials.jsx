@@ -7,12 +7,17 @@ export const AnimatedTestimonials = ({ testimonials, autoplay = false }) => {
   const [active, setActive] = useState(0);
 
   const handleNext = () => {
-    setActive((prev) => (prev + 1) % testimonials.length);
+    if (active < testimonials.length - 1) {
+      setActive((prev) => prev + 1);
+    }
   };
-
+  
   const handlePrev = () => {
-    setActive((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+    if (active > 0) {
+      setActive((prev) => prev - 1);
+    }
   };
+  
 
   const isActive = (index) => index === active;
 
@@ -62,17 +67,18 @@ export const AnimatedTestimonials = ({ testimonials, autoplay = false }) => {
                 }}
                 className="absolute inset-0 flex items-center justify-center rounded-3xl"
                 style={{
-                  backgroundColor: `#${Math.floor(
-                    Math.random() * 16777215
-                  ).toString(16)}`,
+                  backgroundColor: `rgb(${Math.floor(Math.random() * 100)}, ${Math.floor(
+                    Math.random() * 100
+                  )}, ${Math.floor(Math.random() * 100)})`,
                 }}
+                
               >
                 {/* Content Inside the Div */}
                 <div className="text-center px-8">
-                  <h3 className="text-5xl font-bold md:pb-7 text-white">
+                  <h3 className="text-4xl font-bold md:pb-7 text-white">
                     {testimonial.heading} {/* Use heading */}
                   </h3>
-                  <motion.p className="text-3xl text-gray-200 mt-4">
+                  <motion.p className="text-2xl text-gray-200 mt-4">
                     {testimonial.content?.split(" ").map((word, idx) => (
                       <motion.span
                         key={idx}
