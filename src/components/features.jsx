@@ -1,26 +1,25 @@
-import { Mic, Wand2, Zap } from 'lucide-react'
-
+import { Youtube, BookOpen, Brain } from 'lucide-react'
 const features = [
   {
-    icon: <Mic className="h-6 w-6 text-violet-600" />,
-    title: 'Natural Voice Synthesis',
-    description: 'Generate human-like voices with our advanced AI technology.'
+    icon: <Youtube className="h-6 w-6 text-violet-600" />,
+    title: 'Smart Video Learning',
+    description: 'Transform any YouTube video into comprehensive study notes instantly with AI technology.'
   },
   {
-    icon: <Wand2 className="h-6 w-6 text-violet-600" />,
-    title: 'Custom Voice Creation',
-    description: 'Create unique voices tailored to your specific needs and preferences.'
+    icon: <BookOpen className="h-6 w-6 text-violet-600" />,
+    title: 'Interactive Study Tools',
+    description: 'Generate AI-powered flashcards and practice quizzes to reinforce your learning effectively.'
   },
   {
-    icon: <Zap className="h-6 w-6 text-violet-600" />,
-    title: 'Real-time Processing',
-    description: 'Experience lightning-fast voice generation for immediate use.'
+    icon: <Brain className="h-6 w-6 text-violet-600" />,
+    title: 'Performance Insights',
+    description: 'Track your progress with detailed AI analysis reports and personalized learning recommendations.'
   }
 ]
 
 export default function Features() {
   return (
-    <section id="features" className="py-20  px-4 bg-[#0f0f11]">
+    <section id="features" className="py-20  px-4 bg-black">
       <h2 className="text-3xl font-bold text-center text-white mb-12">Powerful Features</h2>
       <div className="grid  text-white md:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {features.map((feature, index) => (
@@ -36,6 +35,5 @@ export default function Features() {
     </section>
   )
 }
-
 
 
