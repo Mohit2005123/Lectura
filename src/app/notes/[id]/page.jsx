@@ -525,7 +525,7 @@ export default function VideoPage() {
               <div style={{ width: `${chatWidth}%` }} className="h-[80vh] sticky top-24 chat-container rounded-xl border border-gray-800 p-4">
                 <div className="flex flex-col h-full max-h-[calc(80vh-2rem)]">
                   <div className="text-lg font-semibold mb-4">Chat with AI</div>
-                  <div className="flex-grow overflow-y-auto mb-4 space-y-4 max-h-[calc(80vh-10rem)] chat-messages-container">
+                  <div className="flex-grow overflow-y-auto mb-4  space-y-4 max-h-[calc(80vh-10rem)] chat-messages-container">
                     {messages.map((msg, idx) => (
                       <div key={idx} className={`p-3 rounded-lg chat-message ${msg.sender === 'user' ? 'ml-auto' : ''} max-w-[80%]`}>
                         {msg.text}
