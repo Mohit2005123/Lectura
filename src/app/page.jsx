@@ -1,10 +1,8 @@
 import Hero from '../components/Hero'
-import Features from '../components/Features'
+import Features from '@/components/Features'
 import Navbar from '../components/landingpage/Navbar'
-import Pricing from '../components/pricing'
-import Footer from '../components/footer'
+import Footer from '../components/Footer'
 import {TimelineDemo}  from '@/components/usage'
-import { InfiniteMovingCardsDemo } from '@/components/testimonial'
 import DemoVideo from '@/components/vidplayer'
 import Developers from '@/components/developers'
 
