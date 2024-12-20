@@ -1,19 +1,20 @@
 import { Youtube, BookOpen, Brain } from 'lucide-react'
+
 const features = [
   {
     icon: <Youtube className="h-6 w-6 text-violet-600" />,
     title: 'Smart Video Learning',
-    description: 'Transform any YouTube video into comprehensive study notes instantly with AI technology.'
+    description: 'Convert YouTube videos to study notes with AI.'
   },
   {
     icon: <BookOpen className="h-6 w-6 text-violet-600" />,
     title: 'Interactive Study Tools',
-    description: 'Generate AI-powered flashcards and practice quizzes to reinforce your learning effectively.'
+    description: 'Create flashcards and quizzes instantly.'
   },
   {
     icon: <Brain className="h-6 w-6 text-violet-600" />,
     title: 'Performance Insights',
-    description: 'Track your progress with detailed AI analysis reports and personalized learning recommendations.'
+    description: 'Track progress with AI-powered analysis.'
   }
 ]
 
