@@ -59,9 +59,9 @@ export default function Developers() {
           <BackgroundGradientDemo
             imgSrc="https://via.placeholder.com/400"
             description="Abdullah Ansari"
-            githubLink="#"
+            githubLink="https://github.com/abdullah-426"
             linkedinLink="https://www.linkedin.com/in/abdullah-ansari-b0a5a0276/"
-            instagramLink="#"
+            instagramLink="https://www.instagram.com/abdullah_26176/"
           />
         </div>
       </div>
