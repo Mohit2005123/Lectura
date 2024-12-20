@@ -6,7 +6,6 @@ export async function POST(request) {
   try {
     // Parse the request body to get the noteId
     const { noteId } = await request.json();
-    console.log('Note id of the request is ', noteId);
     if (!noteId) {
       return NextResponse.json(
         { error: 'Note ID is required' },
