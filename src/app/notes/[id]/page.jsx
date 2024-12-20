@@ -26,6 +26,63 @@ export default function VideoPage() {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
+  const [videoWidth, setVideoWidth] = useState(40); // Initial width percentage for video section
+  const [isDragging, setIsDragging] = useState(false);
+  const [chatWidth, setChatWidth] = useState(30); // Initial width percentage for chat section
+
+  const handleMouseDown = () => {
+    setIsDragging(true);
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    const newWidth = (e.clientX / window.innerWidth) * 100;
+    if (newWidth > 10 && newWidth < 90) {
+      setVideoWidth(newWidth);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleChatMouseDown = () => {
+    setIsDragging(true);
+  };
+
+  const handleChatMouseMove = (e) => {
+    if (!isDragging) return;
+    const newWidth = ((window.innerWidth - e.clientX) / window.innerWidth) * 100;
+    if (newWidth > 10 && newWidth < 90) {
+      setChatWidth(newWidth);
+    }
+  };
+
+  const handleChatMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener('mousemove', handleChatMouseMove);
+      window.addEventListener('mouseup', handleChatMouseUp);
+    } else {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mousemove', handleChatMouseMove);
+      window.removeEventListener('mouseup', handleChatMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mousemove', handleChatMouseMove);
+      window.removeEventListener('mouseup', handleChatMouseUp);
+    };
+  }, [isDragging]);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -283,6 +340,24 @@ export default function VideoPage() {
           background-color: #2d3748;
           color: #cbd5e0;
         }
+        .chat-messages-container {
+          scrollbar-width: none; /* Firefox */
+          -ms-overflow-style: none;  /* IE and Edge */
+          -webkit-overflow-scrolling: touch;
+        }
+        .chat-messages-container::-webkit-scrollbar {
+          width: 0;
+          display: none; /* Chrome, Safari and Opera */
+        }
+        /* Remove the hover states that were showing the scrollbar */
+        .chat-messages-container:hover {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+        .chat-messages-container:hover::-webkit-scrollbar {
+          display: none;
+          width: 0;
+        }
         .chat-input {
           background-color: #2d3748;
           color: #cbd5e0;
@@ -351,10 +426,10 @@ export default function VideoPage() {
           </div>
 
           {/* Main Content with Video Section */}
-          <div className={`flex ${isVideoVisible ? 'gap-2' : 'gap-4'}`}>
+          <div className={`flex ${isVideoVisible ? 'gap-2' : 'gap-4 justify-center'}`}>
             {/* Video Section */}
             {isVideoVisible && videoLink && (
-              <div className="w-2/5 sticky top-24 h-[calc(100vh-6rem)]">
+              <div style={{ width: `${videoWidth}%` }} className="sticky top-24 h-[calc(100vh-6rem)]">
                 <div className="rounded-xl overflow-hidden h-full">
                   <iframe
                     src={`https://www.youtube.com/embed/${getYoutubeVideoId(videoLink)}`}
@@ -368,8 +443,16 @@ export default function VideoPage() {
               </div>
             )}
 
+            {/* Divider Line */}
+            {isVideoVisible && (
+              <div
+                className="w-1 bg-gray-700 cursor-col-resize"
+                onMouseDown={handleMouseDown}
+              ></div>
+            )}
+
             {/* Notes Section */}
-            <div className={`${isVideoVisible ? 'w-3/5' : 'w-full'} ${isChatOpen ? 'w-2/3' : 'w-full'} transition-all duration-300`}>
+            <div style={{ width: `${isVideoVisible ? 100 - videoWidth : 100}%` }} className={`${isChatOpen ? `w-${100 - chatWidth}%` : 'w-full'} transition-all duration-300`}>
               <div
                 ref={contentRef}
                 className={`bg-black rounded-xl shadow-lg border border-gray-800 ${isVideoVisible ? 'p-6' : 'p-8'
@@ -429,12 +512,20 @@ export default function VideoPage() {
               </div>
             </div>
 
+            {/* Divider Line */}
+            {isChatOpen && (
+              <div
+                className="w-1 bg-gray-700 cursor-col-resize"
+                onMouseDown={handleChatMouseDown}
+              ></div>
+            )}
+
             {/* Chat Interface */}
             {isChatOpen && (
-              <div className="w-1/3 h-[80vh] sticky top-24 chat-container rounded-xl border border-gray-800 p-4">
+              <div style={{ width: `${chatWidth}%` }} className="h-[80vh] sticky top-24 chat-container rounded-xl border border-gray-800 p-4">
                 <div className="flex flex-col h-full max-h-[calc(80vh-2rem)]">
                   <div className="text-lg font-semibold mb-4">Chat with AI</div>
-                  <div className="flex-grow overflow-y-auto mb-4 space-y-4 max-h-[calc(80vh-10rem)]">
+                  <div className="flex-grow overflow-y-auto mb-4 space-y-4 max-h-[calc(80vh-10rem)] chat-messages-container">
                     {messages.map((msg, idx) => (
                       <div key={idx} className={`p-3 rounded-lg chat-message ${msg.sender === 'user' ? 'ml-auto' : ''} max-w-[80%]`}>
                         {msg.text}
