@@ -7,11 +7,12 @@ import { db, auth } from '../../../lib/firebase';
 import { doc, getDoc, updateDoc, collection, addDoc, query, where, getDocs, setDoc, arrayUnion } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useParams } from 'next/navigation';
-
+import axios from 'axios';
 export default function VideoPage() {
   const params = useParams();
   const contentRef = useRef(null);
   const hiddenContentRef = useRef(null);
+  const chatEndRef = useRef(null);
   const [isSaving, setIsSaving] = useState(false);
   const [user, setUser] = useState(null);
   const [noteTitle, setNoteTitle] = useState("Untitled Note");
@@ -21,7 +22,10 @@ export default function VideoPage() {
   const [currentNoteId, setCurrentNoteId] = useState(null);
   const [videoLink, setVideoLink] = useState("");
   const [isVideoVisible, setIsVideoVisible] = useState(false);
-
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [inputMessage, setInputMessage] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -59,12 +63,18 @@ export default function VideoPage() {
     fetchNote();
   }, [params.id]);
 
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [messages]);
+
   const handleHeadingChange = (index, newHeading) => {
     const updatedData = [...videoData];
     updatedData[index] = { ...updatedData[index], heading: newHeading };
     setVideoData(updatedData);
   };
-  
+
   const handleContentChange = (index, newContent) => {
     const updatedData = [...videoData];
     updatedData[index] = { ...updatedData[index], content: newContent };
@@ -103,7 +113,7 @@ export default function VideoPage() {
         // Update existing note
         const noteRef = doc(db, 'notes', currentNoteId);
         await updateDoc(noteRef, {
-            title:noteTitle,
+          title: noteTitle,
           content: videoData,
           updatedAt: new Date()
         });
@@ -117,12 +127,12 @@ export default function VideoPage() {
           updatedAt: new Date(),
           userId: userId
         });
-        
+
         setCurrentNoteId(noteDoc.id);
         // Update user's notes array with the new note ID
         const userRef = doc(db, 'users', userId);
         const userDoc = await getDoc(userRef);
-        
+
         if (!userDoc.exists()) {
           await setDoc(userRef, {
             notes: [noteDoc.id]
@@ -142,7 +152,26 @@ export default function VideoPage() {
       setIsSaving(false);
     }
   };
+  const sendMessage = async (message) => {
+    try {
+      setChatLoading(true);
+      const response = await axios.post('/api/chat', {
+        message,
+        videoData,
+      });
 
+      const newUserMessage = { text: message, sender: 'user' };
+      const newAiMessage = { text: response.data.response, sender: 'ai' };
+
+      setMessages(prev => [...prev, newUserMessage, newAiMessage]);
+      setInputMessage('');
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('Failed to send message');
+    } finally {
+      setChatLoading(false);
+    }
+  };
   if (isLoading) {
     return (
       <>
@@ -246,6 +275,25 @@ export default function VideoPage() {
         .pdf-mode .border-gray-800 {
           border-color: #d1d5db !important;
         }
+        .chat-container {
+          background-color: #1a202c;
+          color: #cbd5e0;
+        }
+        .chat-message {
+          background-color: #2d3748;
+          color: #cbd5e0;
+        }
+        .chat-input {
+          background-color: #2d3748;
+          color: #cbd5e0;
+        }
+        .chat-button {
+          background-color: #2b6cb0;
+          color: #cbd5e0;
+        }
+        .chat-button:hover {
+          background-color: #2c5282;
+        }
       `}</style>
 
       <Navbar />
@@ -277,9 +325,8 @@ export default function VideoPage() {
               <button
                 onClick={handleSave}
                 disabled={isSaving}
-                className={`flex items-center gap-2 ${
-                  isSaving ? 'bg-gray-600' : 'bg-green-600 hover:bg-green-700'
-                } text-white px-4 py-2 rounded-lg transition-colors duration-200`}
+                className={`flex items-center gap-2 ${isSaving ? 'bg-gray-600' : 'bg-green-600 hover:bg-green-700'
+                  } text-white px-4 py-2 rounded-lg transition-colors duration-200`}
               >
                 <FaSave />
                 {isSaving ? 'Saving...' : 'Save Notes'}
@@ -290,6 +337,15 @@ export default function VideoPage() {
               >
                 <FaDownload />
                 Download PDF
+              </button>
+              <button
+                onClick={() => setIsChatOpen(!isChatOpen)}
+                className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
+                </svg>
+                {isChatOpen ? 'Close Chat' : 'Chat with AI'}
               </button>
             </div>
           </div>
@@ -313,16 +369,15 @@ export default function VideoPage() {
             )}
 
             {/* Notes Section */}
-            <div className={`${isVideoVisible ? 'w-3/5' : 'w-full'}`}>
+            <div className={`${isVideoVisible ? 'w-3/5' : 'w-full'} ${isChatOpen ? 'w-2/3' : 'w-full'} transition-all duration-300`}>
               <div
                 ref={contentRef}
-                className={`bg-black rounded-xl shadow-lg border border-gray-800 ${
-                  isVideoVisible ? 'p-6' : 'p-8'
-                } mb-4`}
+                className={`bg-black rounded-xl shadow-lg border border-gray-800 ${isVideoVisible ? 'p-6' : 'p-8'
+                  } mb-4`}
               >
                 <div className="space-y-8">
                   {videoData.map((section, index) => (
-                    <div 
+                    <div
                       key={index}
                       className="pb-6 border-b border-gray-700 last:border-0 relative group"
                     >
@@ -362,7 +417,7 @@ export default function VideoPage() {
                   ))}
                 </div>
               </div>
-              
+
               {/* Add Section button */}
               <div className={`flex justify-center ${isVideoVisible ? 'mb-6' : 'mb-8'}`}>
                 <button
@@ -373,6 +428,40 @@ export default function VideoPage() {
                 </button>
               </div>
             </div>
+
+            {/* Chat Interface */}
+            {isChatOpen && (
+              <div className="w-1/3 h-[80vh] sticky top-24 chat-container rounded-xl border border-gray-800 p-4">
+                <div className="flex flex-col h-full max-h-[calc(80vh-2rem)]">
+                  <div className="text-lg font-semibold mb-4">Chat with AI</div>
+                  <div className="flex-grow overflow-y-auto mb-4 space-y-4 max-h-[calc(80vh-10rem)]">
+                    {messages.map((msg, idx) => (
+                      <div key={idx} className={`p-3 rounded-lg chat-message ${msg.sender === 'user' ? 'ml-auto' : ''} max-w-[80%]`}>
+                        {msg.text}
+                      </div>
+                    ))}
+                    <div ref={chatEndRef} />
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      value={inputMessage}
+                      onChange={(e) => setInputMessage(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && sendMessage(inputMessage)}
+                      placeholder="Type your message..."
+                      className="flex-grow chat-input rounded-lg px-4 py-2"
+                      disabled={chatLoading}
+                    />
+                    <button
+                      onClick={() => sendMessage(inputMessage)}
+                      disabled={isLoading}
+                      className="chat-button px-4 py-2 rounded-lg"
+                    >
+                      {chatLoading ? 'Sending...' : 'Send'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Footer */}
