@@ -3,10 +3,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import axios from 'axios';
 import { useVideoContext } from '../context/VideoContext';
 import {useRouter} from 'next/navigation';
+
 export default function VideoUploadModal({ isOpen, onClose, onSubmit }) {
   const { setVideoData } = useVideoContext();
-  const router=useRouter();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -14,20 +17,34 @@ export default function VideoUploadModal({ isOpen, onClose, onSubmit }) {
       document.body.style.overflow = "auto";
     }
   }, [isOpen]);
+
   const handleSubmit = async (inputValue) => {
     setIsLoading(true);
+    setError(null);
+    
     try {
-      const response = await axios.post("/api/generateNotes", { link: inputValue }); // Make a POST request to the API
-      setVideoData(response.data); // Store the data in Context
-      console.log(response.data);
-      router.push('/video-result'); // Redirect to the result page
-      onClose(); // Close the modal
+      const response = await axios.post(
+        "https://lectura-transcripto-api.onrender.com/api/generate",
+        { link: inputValue }
+      );
+      
+      if (response.data) {
+        setVideoData(response.data);
+        router.push('/video-result');
+        onClose();
+      }
     } catch (error) {
       console.error("Error uploading video:", error);
+      setError(
+        error.response?.data?.message || 
+        error.message || 
+        "Failed to process video. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
   };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -77,6 +94,11 @@ export default function VideoUploadModal({ isOpen, onClose, onSubmit }) {
                   required
                 />
               </div>
+              {error && (
+                <div className="p-4 text-red-500 bg-red-100/10 rounded-xl text-sm">
+                  {error}
+                </div>
+              )}
               {isLoading ? (
                 <div className="w-full px-6 py-4 bg-gradient-to-r from-violet-600 to-blue-600 text-white font-semibold rounded-xl flex items-center justify-center">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
