@@ -30,7 +30,7 @@ export default function Developers() {
         {/* Render individual developer components */}
         <div className="items-center justify-center max-w-[30rem] max-h-[30rem] mb-10 mt-5">
           <BackgroundGradientDemo
-            imgSrc="https://via.placeholder.com/400"
+            imgSrc="/devs/mohit.jpg"
             description="Mohit Mongia"
             githubLink="https://github.com/Mohit2005123"
             linkedinLink="https://www.linkedin.com/in/mongia-mohit/"
@@ -39,7 +39,7 @@ export default function Developers() {
         </div>
         <div className="items-center justify-center max-w-[30rem] max-h-[30rem] mb-10 mt-5">
           <BackgroundGradientDemo
-            imgSrc="https://via.placeholder.com/400"
+            imgSrc="/devs/sparsh.png"
             description="Sparsh Gulati"
             githubLink="https://github.com/sparsh7637"
             linkedinLink="https://www.linkedin.com/in/sparsh-gulati-665032287/"
@@ -48,7 +48,7 @@ export default function Developers() {
         </div>
         <div className="items-center justify-center max-w-[30rem] max-h-[30rem] mb-10 mt-10">
           <BackgroundGradientDemo
-            imgSrc="https://via.placeholder.com/400"
+            imgSrc="/devs/vasu.jpg"
             description="Vasu Reena Kush Varshney"
             githubLink="https://github.com/Vasu-Varshneya"
             linkedinLink="https://www.linkedin.com/in/vasu-varshney-16b8a9278/"
@@ -57,7 +57,7 @@ export default function Developers() {
         </div>
         <div className="items-center justify-center max-w-[30rem] max-h-[30rem] mb-10 mt-10">
           <BackgroundGradientDemo
-            imgSrc="https://via.placeholder.com/400"
+            imgSrc="/devs/abdullah.jpg"
             description="Abdullah Ansari"
             githubLink="https://github.com/abdullah-426"
             linkedinLink="https://www.linkedin.com/in/abdullah-ansari-b0a5a0276/"
