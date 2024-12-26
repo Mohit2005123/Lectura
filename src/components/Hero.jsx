@@ -16,12 +16,12 @@ export default function Hero() {
   };
 
   return (
-    <section className="min-h-screen relative flex flex-col items-center justify-center bg-black px-4 py-16 pt-40 md:pt-48">
+    <section className="min-h-screen relative flex flex-col items-center justify-center bg-black px-4 py-16 pt-40 md:pt-32">
       {/* Background */}
-      <div className="absolute inset-0 opacity-30 transition-opacity duration-700">
+      {/* <div className="absolute inset-0 opacity-30 transition-opacity duration-700">
         <div className="absolute inset-0 bg-gradient-to-b from-violet-900/50 via-violet-900/50 to-black z-10" />
         <Image1 className="w-full h-full object-cover scale-105 hover:scale-100 transition-transform duration-1000" />
-      </div>
+      </div> */}
 
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto space-y-8 text-center">
@@ -56,9 +56,9 @@ export default function Hero() {
           </button>
           <button
             className="px-8 py-4 bg-transparent border-2 border-violet-500/50 text-white font-semibold rounded-lg hover:bg-violet-500/20 backdrop-blur-sm transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 text-lg"
-            onClick={() => setIsNotesModalOpen(true)}
+            // onClick={() => setIsNotesModalOpen(true)}
           >
-            Upload your Notes
+            Coming Soon
           </button>
         </div>
       </div>

@@ -16,7 +16,7 @@ export default function Developers() {
   return (
     <section id="developers" className="py-20 px-6 mb-[10rem] bg-black">
       <div className="max-w-[75rem] mx-auto text-center">
-        <h2 className="text-3xl font-bold text-white mb-6 text-center">
+        <h2 className="text-5xl font-bold text-white mb-6 text-center">
           Meet the Developers
         </h2>
         <p className="text-lg text-gray-300 leading-relaxed max-w-3xl mx-auto">
