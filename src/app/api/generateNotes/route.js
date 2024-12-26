@@ -5,7 +5,7 @@ const GroqApiKey=process.env.GROQ_API_KEY;
 export async function POST(request) {
   try{
     const {link} = await request.json();
-    console.log('Link given by user is:', link);
+    // console.log('Link given by user is:', link);
     if(!link){
       return NextResponse.json({message:'Link not given'}, {status:500});
     }

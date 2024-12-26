@@ -15,7 +15,6 @@ export default async function getTranscript(videoUrl) {
             }
           };
           const response = await axios.request(options);
-          console.log(response.data.content);
           return response.data.content;
     }
     catch(err){
