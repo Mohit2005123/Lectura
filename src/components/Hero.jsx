@@ -22,7 +22,6 @@ export default function Hero() {
         <div className="absolute inset-0 bg-gradient-to-b from-violet-900/50 via-violet-900/50 to-black z-10" />
         <Image1 className="w-full h-full object-cover scale-105 hover:scale-100 transition-transform duration-1000" />
       </div> */}
-
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto space-y-8 text-center">
         <h1 className="text-4xl md:text-7xl text-white font-bold mb-4 leading-tight animate-fade-in-up tracking-tight flex flex-col items-center gap-3 text-shadow-lg">
@@ -56,9 +55,9 @@ export default function Hero() {
           </button>
           <button
             className="px-8 py-4 bg-transparent border-2 border-violet-500/50 text-white font-semibold rounded-lg hover:bg-violet-500/20 backdrop-blur-sm transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 text-lg"
-            // onClick={() => setIsNotesModalOpen(true)}
+            onClick={() => setIsNotesModalOpen(true)}
           >
-            Coming Soon
+            Upload your Notes
           </button>
         </div>
       </div>

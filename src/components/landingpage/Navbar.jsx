@@ -5,6 +5,7 @@ import { auth } from '../../lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { Home, Layout, Upload, LogOut, LogIn, User, Menu, X } from 'lucide-react';
 import VideoUploadModal from '../VideoUploadModal';
+import NoteUploadModal from '../NoteUploadModal';
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
@@ -13,6 +14,7 @@ export default function Navbar() {
   const dropdownRef = useRef(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -51,13 +53,21 @@ export default function Navbar() {
   const handleGenerateNotesClick = async() => {
     // First scroll to top instantly
     window.scrollTo(0, 0);
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 200));
     // Use requestAnimationFrame to ensure the scroll is complete before opening modal
     requestAnimationFrame(() => {
       setIsVideoModalOpen(true);
     });
   };
 
+  const handleUploadNotesClick = async() => {
+    window.scrollTo(0, 0);
+    await new Promise(resolve => setTimeout(resolve, 200));
+    // Use requestAnimationFrame to ensure the scroll is complete before opening modal
+    requestAnimationFrame(() => {
+      setIsNoteModalOpen(true);
+    });
+  };
   return (
     <nav 
       className={`fixed w-full z-50 transition-all duration-300 ease-in-out 
@@ -96,11 +106,13 @@ export default function Navbar() {
               <Layout className="w-5 h-5 text-zinc-500 group-hover:text-cyan-400 transition-colors" />
               <span className="text-sm font-medium">Dashboard</span>
             </Link>
-            <Link href="/upload" className="group flex items-center space-x-2 
-              text-zinc-400 hover:text-white transition-all duration-300">
+            <button
+              onClick={handleUploadNotesClick}
+              className="group flex items-center space-x-2 text-zinc-400 hover:text-white transition-all duration-300"
+            >
               <Upload className="w-5 h-5 text-zinc-500 group-hover:text-blue-400 transition-colors" />
               <span className="text-sm font-medium">Upload Notes</span>
-            </Link>
+            </button>
             <button
               onClick={handleGenerateNotesClick}
               className="group flex items-center space-x-2 text-zinc-400 hover:text-white transition-all duration-300"
@@ -177,13 +189,15 @@ export default function Navbar() {
                   <span>Dashboard</span>
                 </div>
               </Link>
-              <Link href="/upload" className="block px-3 py-2 rounded-md text-base font-medium 
-                text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all duration-300">
+              <button
+                onClick={handleUploadNotesClick}
+                className="block w-full px-3 py-2 rounded-md text-base font-medium text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all duration-300"
+              >
                 <div className="flex items-center space-x-2">
                   <Upload className="w-5 h-5" />
                   <span>Upload Notes</span>
                 </div>
-              </Link>
+              </button>
               <button
                 onClick={handleGenerateNotesClick}
                 className="block w-full px-3 py-2 rounded-md text-base font-medium text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all duration-300"
@@ -225,6 +239,10 @@ export default function Navbar() {
           </div>
         )}
       </div>
+      <NoteUploadModal
+        isOpen={isNoteModalOpen}
+        onClose={() => setIsNoteModalOpen(false)}
+      />
       <VideoUploadModal
         isOpen={isVideoModalOpen}
         onClose={() => setIsVideoModalOpen(false)}

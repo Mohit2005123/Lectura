@@ -1,98 +1,99 @@
-'use client';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useRef, useEffect } from 'react';
-import { FileUpload } from '@/components/ui/file-upload';
+import { X } from 'lucide-react';
 
-export default function NotesUploadModal({ isOpen, onClose, onSubmit }) {
-  const [file, setFile] = useState(null);
-  const modalRef = useRef(null);
-
-  const handleFileChange = (uploadedFile) => {
-    setFile(uploadedFile);
-  };
-
-  const handleSubmit = () => {
-    if (file) {
-      onSubmit(file);
-      setFile(null); // Reset file after submission
-      onClose();
-    }
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (modalRef.current && !modalRef.current.contains(event.target)) {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-      };
-    }
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
+const NotesUploadModal = ({ isOpen, onClose }) => {
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black">
-        <motion.div
-          ref={modalRef}
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-          transition={{ duration: 0.3, ease: 'easeInOut' }}
-          className="bg-black rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-8 relative border border-neutral-800"
-        >
-          {/* Modal Header */}
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-white">Upload Notes</h2>
+      {isOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          />
+          
+          {/* Modal */}
+          <motion.div
+            initial={{ scale: 0.5, opacity: 0, y: 0 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.5, opacity: 0 }}
+            transition={{ type: "spring", damping: 20 }}
+            className="relative w-11/12 max-w-lg bg-black p-8 rounded-2xl shadow-xl mx-auto"
+          >
+            {/* Close button */}
             <button
               onClick={onClose}
-              className="text-neutral-400 hover:text-white focus:outline-none transition-colors"
+              className="absolute right-4 top-4 text-gray-400 hover:text-white transition-colors"
             >
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                className="h-6 w-6" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                stroke="currentColor"
+              <X size={24} />
+            </button>
+
+            {/* Content */}
+            <div className="text-center space-y-6">
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.1 }}
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
+                <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-purple-400 to-blue-400">
+                  Coming Soon
+                </h2>
+              </motion.div>
 
-          {/* File Upload Component */}
-          <div className="mb-6">
-            <FileUpload onChange={handleFileChange} />
-          </div>
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="space-y-4"
+              >
+                <p className="text-gray-300 text-lg">
+                  We're working hard to bring you an amazing notes upload feature.
+                </p>
+                <p className="text-gray-400">
+                  Stay tuned for updates as we develop this exciting new capability!
+                </p>
+              </motion.div>
 
-          {/* Actions */}
-          <div className="flex justify-end gap-4">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-neutral-800 text-neutral-300 rounded-lg hover:bg-neutral-700 focus:outline-none transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={!file}
-              className={`px-4 py-2 rounded-lg focus:outline-none transition-colors ${
-                file
-                  ? 'bg-violet-600 text-white hover:bg-violet-700'
-                  : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
-              }`}
-            >
-              Submit
-            </button>
-          </div>
-        </motion.div>
-      </div>
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="pt-4"
+              >
+                <div className="inline-block">
+                  <motion.div
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ 
+                      repeat: Infinity,
+                      duration: 2,
+                      ease: "easeInOut"
+                    }}
+                    className="text-6xl"
+                  >
+                    🚀
+                  </motion.div>
+                </div>
+              </motion.div>
+
+              <motion.button
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                onClick={onClose}
+                className="px-8 py-3 bg-violet-600 text-white font-semibold rounded-lg hover:bg-violet-700 transform hover:-translate-y-1 transition-all duration-200"
+              >
+                Got it!
+              </motion.button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </AnimatePresence>
   );
-}
+};
+
+export default NotesUploadModal;
