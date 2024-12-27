@@ -1,6 +1,6 @@
 import React from 'react';
 
-const NoteCard = ({ title, content, onClick, onFlashcardClick, onQuizClick }) => {
+const NoteCard = ({ title, content, onClick, onFlashcardClick, onQuizClick, onDelete }) => {
   return (
     <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-5 shadow-2xl hover:shadow-3xl transition-all duration-300 h-[450px] flex flex-col">
       <div className="flex-grow">
@@ -15,6 +15,7 @@ const NoteCard = ({ title, content, onClick, onFlashcardClick, onQuizClick }) =>
               {item.heading}
             </p>
           ))}
+          
         </div>
       </div>
       <div className="space-y-3 mt-4">
@@ -44,6 +45,15 @@ const NoteCard = ({ title, content, onClick, onFlashcardClick, onQuizClick }) =>
            hover:scale-[1.02] active:scale-[0.98]"
         >
           <span>Generate Quiz</span>
+        </button>
+        <button
+          onClick={onDelete}
+          className="w-full px-4 py-3 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-xl
+           hover:from-red-700 hover:to-rose-700 transition-all duration-300 shadow-xl
+           font-semibold text-base flex items-center justify-center space-x-2
+           hover:scale-[1.02] active:scale-[0.98]"
+        >
+          <span>Delete Note</span>
         </button>
       </div>
     </div>

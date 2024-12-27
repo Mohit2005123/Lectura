@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, deleteDoc, arrayRemove } from "firebase/firestore";
 import { db } from "../../lib/firebase";
 import Navbar from "../../components/landingpage/Navbar";
 import Footer from '../../components/Footer';
@@ -139,6 +139,28 @@ const DashboardPage = () => {
     router.push(`/quiz/${noteId}`);
   };
 
+  const handleDeleteNote = async (noteId) => {
+    if (window.confirm("Are you sure you want to delete this note? This action cannot be undone.")) {
+      try {
+        // Delete the note document
+        await deleteDoc(doc(db, "notes", noteId));
+        
+        // Remove the note reference from user's notes array
+        if (userId) {
+          const userRef = doc(db, "users", userId);
+          await updateDoc(userRef, {
+            notes: arrayRemove(noteId)
+          });
+        }
+
+        // Update the local state
+        setNotes(notes.filter(note => note.id !== noteId));
+      } catch (error) {
+        console.error("Error deleting note:", error);
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black">
       <div className="fixed top-0 left-0 right-0 z-50">
@@ -190,6 +212,7 @@ const DashboardPage = () => {
                   onClick={() => handleCardClick(note.id)}
                   onFlashcardClick={() => openModal(note)}
                   onQuizClick={() => handleQuizGeneration(note.id)}
+                  onDelete={() => handleDeleteNote(note.id)}
                 />
               </div>
             ))
