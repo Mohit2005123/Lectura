@@ -210,9 +210,7 @@ const DashboardPage = () => {
       </div>
 
       {/* Expandable ChatBox Component */}
-      <div className="fixed bottom-5 right-5 bg-white z-50">
-        <ExpandableChatBox />
-      </div>
+      
     </div>
   );
 };

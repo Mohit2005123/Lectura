@@ -7,7 +7,6 @@ import { db, auth } from '../../../lib/firebase';
 import { doc, getDoc, updateDoc, collection, addDoc, query, where, getDocs, setDoc, arrayUnion } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useParams } from 'next/navigation';
-
 export default function VideoPage() {
   const params = useParams();
   const contentRef = useRef(null);
