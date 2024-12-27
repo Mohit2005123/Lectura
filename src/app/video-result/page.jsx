@@ -9,7 +9,7 @@ import { collection, addDoc, doc, updateDoc, arrayUnion, getDoc, setDoc, query, 
 import { onAuthStateChanged } from 'firebase/auth';
 import { Toaster, toast } from 'react-hot-toast'; // Modified this line
 import { useRouter } from 'next/navigation'; // Add this import
-
+import Footer from '../../components/Footer';
 export default function VideoPage() {
   const router = useRouter(); // Add this
   const { videoData, setVideoData } = useVideoContext();
@@ -367,6 +367,7 @@ export default function VideoPage() {
         className="hidden"
         style={{ position: 'absolute', top: 0, left: 0 }}
       ></div>
+      <Footer></Footer>
     </>
   );
 }

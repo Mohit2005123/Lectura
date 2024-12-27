@@ -4,6 +4,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../lib/firebase";
 import Navbar from "../../components/landingpage/Navbar";
+import Footer from '../../components/Footer';
 import { SparklesCore } from "../../components/ui/sparkles";
 import FlashCardModal from "@/components/dashboard/flashcard_modal";
 import { useRouter } from "next/navigation";
@@ -201,6 +202,8 @@ const DashboardPage = () => {
           card={selectedCard}
         />
       </div>
+
+      <Footer />
     </div>
   );
 };

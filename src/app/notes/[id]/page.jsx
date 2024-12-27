@@ -3,11 +3,14 @@ import { useRef, useState, useEffect } from 'react';
 import html2pdf from 'html2pdf.js';
 import { FaDownload, FaFilePdf, FaTrash, FaSave, FaRobot } from 'react-icons/fa';
 import Navbar from '../../../components/landingpage/Navbar';
+import Footer from '../../../components/Footer';
 import { db, auth } from '../../../lib/firebase';
 import { doc, getDoc, updateDoc, collection, addDoc, query, where, getDocs, setDoc, arrayUnion } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
+import { Toaster, toast } from 'react-hot-toast';
+
 export default function VideoPage() {
   const params = useParams();
   const contentRef = useRef(null);
@@ -153,17 +156,18 @@ export default function VideoPage() {
 
   const handleSave = async () => {
     if (!user) {
-      alert('Please login to save notes');
+      toast.error('Please login to save notes');
       return;
     }
 
     if (!noteTitle.trim()) {
-      alert('Please enter a title for your note');
+      toast.error('Please enter a title for your note');
       return;
     }
 
     try {
       setIsSaving(true);
+      toast.loading('Saving notes...', { id: 'saving' });
       const userId = user.uid;
 
       if (currentNoteId) {
@@ -201,14 +205,15 @@ export default function VideoPage() {
         }
       }
 
-      alert('Notes saved successfully!');
+      toast.success('Notes saved successfully!', { id: 'saving' });
     } catch (error) {
       console.error('Error saving notes:', error);
-      alert('Failed to save notes. Please try again.');
+      toast.error('Failed to save notes. Please try again.', { id: 'saving' });
     } finally {
       setIsSaving(false);
     }
   };
+
   const sendMessage = async (message) => {
     try {
       setChatLoading(true);
@@ -299,6 +304,17 @@ export default function VideoPage() {
 
   return (
     <>
+      <Toaster
+        position="top-center"
+        reverseOrder={false}
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#333',
+            color: '#fff',
+          },
+        }}
+      />
       <style jsx>{`
         .pdf-mode {
         
@@ -579,6 +595,8 @@ export default function VideoPage() {
         className="hidden"
         style={{ position: 'absolute', top: 0, left: 0 }}
       ></div>
+      
+      <Footer />
     </>
   );
 }
