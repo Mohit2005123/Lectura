@@ -173,7 +173,7 @@ const DashboardPage = () => {
       <div className="container mx-auto px-8 py-8 pt-24 max-w-[1200px] relative">
         <div className="h-[15rem] w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md">
           <h1 className="md:text-5xl text-5xl lg:text-6xl font-bold text-center text-white relative z-20">
-            Hello 👋🏻 {userName}
+            Hello  {userName}
           </h1>
           <div className="w-[40rem] h-40 relative">
             {/* Gradients */}

@@ -63,7 +63,7 @@ const NoteCard = ({ title, content, onClick, onFlashcardClick, onQuizClick, onDe
            border border-slate-700 hover:border-slate-600
            active:scale-[0.98]"
         >
-          <Trash2 size={18} className="mr-2" />
+          <Trash2 size={18} className="mr-2 text-red-500" />
           <span>Delete Note</span>
         </button>
       </div>
