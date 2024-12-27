@@ -2,13 +2,16 @@
 import { useVideoContext } from '../../context/VideoContext';
 import { useRef, useState, useEffect } from 'react';
 import html2pdf from 'html2pdf.js';
-import { FaDownload, FaFilePdf, FaTrash, FaSave } from 'react-icons/fa';
+import { FaDownload, FaFilePdf, FaTrash, FaSave, FaRobot } from 'react-icons/fa'; // Add FaRobot
 import Navbar from '../../components/landingpage/Navbar';
 import { db, auth } from '../../lib/firebase';
 import { collection, addDoc, doc, updateDoc, arrayUnion, getDoc, setDoc, query, where, getDocs } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
+import { Toaster, toast } from 'react-hot-toast'; // Modified this line
+import { useRouter } from 'next/navigation'; // Add this import
 
 export default function VideoPage() {
+  const router = useRouter(); // Add this
   const { videoData, setVideoData } = useVideoContext();
   const contentRef = useRef(null);
   const hiddenContentRef = useRef(null);
@@ -53,18 +56,19 @@ export default function VideoPage() {
 
   const handleSave = async () => {
     if (!user) {
-      alert('Please login to save notes');
+      toast.error('Please login to save notes');
       return;
     }
 
-    if (!noteTitle.trim()) {
-      alert('Please enter a title for your note');
+    if (!noteTitle.trim() || noteTitle.trim() === "Untitled Note") {
+      toast.error('Please enter a valid title for your note');
       return;
     }
 
     try {
       setIsSaving(true);
       const userId = user.uid;
+      let noteId;
 
       // Query to check if a note with the same title exists
       const notesRef = collection(db, 'notes');
@@ -78,12 +82,12 @@ export default function VideoPage() {
       if (!querySnapshot.empty) {
         // Update existing note
         const existingNote = querySnapshot.docs[0];
-        const noteRef = doc(db, 'notes', existingNote.id);
+        noteId = existingNote.id;
+        const noteRef = doc(db, 'notes', noteId);
         await updateDoc(noteRef, {
           content: videoData.notes,
           updatedAt: new Date()
         });
-        setCurrentNoteId(existingNote.id);
       } else {
         // Create new note
         const notesCollection = collection(db, 'notes');
@@ -93,33 +97,44 @@ export default function VideoPage() {
           createdAt: new Date(),
           updatedAt: new Date(),
           userId: userId,
-          link:videoData.link
+          link: videoData.link
         });
         
-        setCurrentNoteId(noteDoc.id);
+        noteId = noteDoc.id;
 
-        // Update user's notes array with the new note ID
+        // Update user's notes array
         const userRef = doc(db, 'users', userId);
         const userDoc = await getDoc(userRef);
         
         if (!userDoc.exists()) {
           await setDoc(userRef, {
-            notes: [noteDoc.id]
+            notes: [noteId]
           });
         } else {
           await updateDoc(userRef, {
-            notes: arrayUnion(noteDoc.id)
+            notes: arrayUnion(noteId)
           });
         }
       }
 
-      alert('Notes saved successfully!');
+      toast.success('Notes saved successfully!');
+      // Redirect to the note page
+      router.push(`/notes/${noteId}`);
+      
     } catch (error) {
       console.error('Error saving notes:', error);
-      alert('Failed to save notes. Please try again.');
+      toast.error('Failed to save notes. Please try again.');
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleChatWithAI = () => {
+    if (!currentNoteId) {
+      toast.error('Please save your notes first before starting a chat');
+      return;
+    }
+    router.push(`/chat/${currentNoteId}`);
   };
 
   const getYoutubeVideoId = (url) => {
@@ -170,6 +185,7 @@ export default function VideoPage() {
 
   return (
     <>
+      <Toaster position="top-right" /> {/* Changed from toast.Toaster to Toaster */}
       <style jsx>{`
         .pdf-mode {
           background-color: white !important;
@@ -230,6 +246,13 @@ export default function VideoPage() {
                   {isVideoVisible ? 'Hide Video' : 'Play Video'}
                 </button>
               )}
+              <button
+                onClick={handleChatWithAI}
+                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+              >
+                <FaRobot />
+                Chat with AI
+              </button>
               <button
                 onClick={handleSave}
                 disabled={isSaving}

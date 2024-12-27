@@ -1,7 +1,7 @@
 'use client';
 import { useRef, useState, useEffect } from 'react';
 import html2pdf from 'html2pdf.js';
-import { FaDownload, FaFilePdf, FaTrash, FaSave } from 'react-icons/fa';
+import { FaDownload, FaFilePdf, FaTrash, FaSave, FaRobot } from 'react-icons/fa';
 import Navbar from '../../../components/landingpage/Navbar';
 import { db, auth } from '../../../lib/firebase';
 import { doc, getDoc, updateDoc, collection, addDoc, query, where, getDocs, setDoc, arrayUnion } from 'firebase/firestore';
@@ -27,61 +27,61 @@ export default function VideoPage() {
   const [inputMessage, setInputMessage] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
   const [videoWidth, setVideoWidth] = useState(40); // Initial width percentage for video section
-  const [isDragging, setIsDragging] = useState(false);
   const [chatWidth, setChatWidth] = useState(30); // Initial width percentage for chat section
 
-  const handleMouseDown = () => {
-    setIsDragging(true);
+  // Replace the isDragging state with specific states
+  const [isVideoDragging, setIsVideoDragging] = useState(false);
+  const [isChatDragging, setIsChatDragging] = useState(false);
+
+  const handleVideoMouseDown = () => {
+    setIsVideoDragging(true);
   };
 
-  const handleMouseMove = (e) => {
-    if (!isDragging) return;
+  const handleVideoMouseMove = (e) => {
+    if (!isVideoDragging) return;
     const newWidth = (e.clientX / window.innerWidth) * 100;
-    if (newWidth > 10 && newWidth < 90) {
+    if (newWidth > 10 && newWidth < 60) {
       setVideoWidth(newWidth);
     }
   };
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
+  const handleVideoMouseUp = () => {
+    setIsVideoDragging(false);
   };
 
   const handleChatMouseDown = () => {
-    setIsDragging(true);
+    setIsChatDragging(true);
   };
 
   const handleChatMouseMove = (e) => {
-    if (!isDragging) return;
+    if (!isChatDragging) return;
     const newWidth = ((window.innerWidth - e.clientX) / window.innerWidth) * 100;
-    if (newWidth > 10 && newWidth < 90) {
+    if (newWidth > 10 && newWidth < 60) {
       setChatWidth(newWidth);
     }
   };
 
   const handleChatMouseUp = () => {
-    setIsDragging(false);
+    setIsChatDragging(false);
   };
 
   useEffect(() => {
-    if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
+    if (isVideoDragging) {
+      window.addEventListener('mousemove', handleVideoMouseMove);
+      window.addEventListener('mouseup', handleVideoMouseUp);
+    }
+    if (isChatDragging) {
       window.addEventListener('mousemove', handleChatMouseMove);
       window.addEventListener('mouseup', handleChatMouseUp);
-    } else {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-      window.removeEventListener('mousemove', handleChatMouseMove);
-      window.removeEventListener('mouseup', handleChatMouseUp);
     }
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mousemove', handleVideoMouseMove);
+      window.removeEventListener('mouseup', handleVideoMouseUp);
       window.removeEventListener('mousemove', handleChatMouseMove);
       window.removeEventListener('mouseup', handleChatMouseUp);
     };
-  }, [isDragging]);
+  }, [isVideoDragging, isChatDragging]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -413,13 +413,20 @@ export default function VideoPage() {
                 <FaDownload />
                 Download PDF
               </button>
-              <button
+              {/* <button
                 onClick={() => setIsChatOpen(!isChatOpen)}
                 className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
                 </svg>
+                {isChatOpen ? 'Close Chat' : 'Chat with AI'}
+              </button> */}
+              <button
+                onClick={()=>setIsChatOpen(!isChatOpen)}
+                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+              >
+                <FaRobot />
                 {isChatOpen ? 'Close Chat' : 'Chat with AI'}
               </button>
             </div>
@@ -447,12 +454,16 @@ export default function VideoPage() {
             {isVideoVisible && (
               <div
                 className="w-1 bg-gray-700 cursor-col-resize"
-                onMouseDown={handleMouseDown}
+                onMouseDown={handleVideoMouseDown}
               ></div>
             )}
 
             {/* Notes Section */}
-            <div style={{ width: `${isVideoVisible ? 100 - videoWidth : 100}%` }} className={`${isChatOpen ? `w-${100 - chatWidth}%` : 'w-full'} transition-all duration-300`}>
+            <div style={{ 
+              width: `${isVideoVisible && isChatOpen ? (100 - videoWidth - chatWidth) : 
+                      isVideoVisible ? (100 - videoWidth) :
+                      isChatOpen ? (100 - chatWidth) : 100}%` 
+            }} className="transition-all duration-300">
               <div
                 ref={contentRef}
                 className={`bg-black rounded-xl shadow-lg border border-gray-800 ${isVideoVisible ? 'p-6' : 'p-8'
