@@ -40,7 +40,7 @@ export default function VidPlayer() {
 
         <div className="w-full max-w-[900px]" ref={videoRef}>
           <iframe
-            src={`https://www.youtube.com/embed/bTnmMc7hHEQ?autoplay=${
+            src={`https://www.youtube.com/embed/eRe7w2I6CzE?autoplay=${
               isVisible ? 1 : 0
             }&mute=1&cc_load_policy=0`}
             title="How to Use the Application"
