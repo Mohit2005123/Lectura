@@ -205,7 +205,7 @@ const DashboardPage = () => {
             </div>
           ) : (
             notes.map((note) => (
-              <div className="h-[28rem]" key={note.id}>
+              <div className="h-[28rem] my-8" key={note.id}>
                 <NoteCard
                   title={note.title}
                   content={note.content || []}
