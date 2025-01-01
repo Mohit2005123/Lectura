@@ -38,8 +38,8 @@ export default function VidPlayer() {
           </p>
         </div>
 
-        <div className="w-full max-w-[900px]" ref={videoRef}>
-          <iframe
+        <div className="w-full flex justify-center max-w-[1200px]" ref={videoRef}>
+          {/* <iframe
             src={`https://www.youtube.com/embed/eRe7w2I6CzE?autoplay=${
               isVisible ? 1 : 0
             }&mute=1&cc_load_policy=0`}
@@ -47,7 +47,17 @@ export default function VidPlayer() {
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
             className="rounded-lg shadow-lg border border-gray-300 w-full aspect-video"
-          ></iframe>
+          ></iframe> */}
+          <video
+        autoPlay
+        loop
+        muted
+        controls
+        style={{ width: "80%", border: "2px solid #ccc", borderRadius: "10px" }}
+      >
+        <source src="demo.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
         </div>
       </div>
     </section>
