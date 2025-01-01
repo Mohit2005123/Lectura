@@ -5,5 +5,6 @@ export function AnimatedTestimonialsDemo({ flashCards }) {
     heading: flashcard.heading,
     content: flashcard.content,
   }));
+
   return <AnimatedTestimonials testimonials={testimonials} />;
 }
