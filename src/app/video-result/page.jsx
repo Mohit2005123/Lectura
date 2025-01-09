@@ -20,7 +20,6 @@ export default function VideoPage() {
   const [currentNoteId, setCurrentNoteId] = useState(null);
   const [noteTitle, setNoteTitle] = useState("Untitled Note");
   const [isVideoVisible, setIsVideoVisible] = useState(false);
-a
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
