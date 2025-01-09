@@ -14,6 +14,7 @@ export default function Hero() {
     console.log("Submitted URL:", inputValue);
     setIsNotesModalOpen(false); // Close the modal after submission
   };
+  // Hello world
 
   return (
     <section className="min-h-screen relative flex flex-col items-center justify-center bg-black px-4 py-16 pt-40 md:pt-32">
