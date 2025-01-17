@@ -24,6 +24,7 @@ async function getShortenedFlashcards(dataArray) {
       flashcards.push({ heading: element.heading, content: "Failed to generate flashcard." });
     }
   }
+  console.log(flashcards);
   return flashcards;
 }
 
@@ -33,7 +34,7 @@ export async function getGroqChatCompletion(heading, content) {
     messages: [
       {
         role: "system",
-        content: `
+        content: `d 
 You are a highly skilled assistant that extracts only the crucial information for flashcards.
 Your task is to create a single-line summary of only the essential core concepts.
 
@@ -57,7 +58,7 @@ Output: Course 804 explores quantum mechanics fundamentals with focus on intuiti
         content: `Extract only the key information in 50 words or less:\n${content}`
       },
     ],
-    model: "llama3-8b-8192",
+    model: "llama-3.1-8b-instant",
   });
 
   // Remove any line breaks and meta-text patterns
