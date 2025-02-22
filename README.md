@@ -40,4 +40,4 @@ Welcome to [Lectura](https://lectura-omega.vercel.app), a cutting-edge software 
 2. Upload the YouTube video URL.
 3. Let the AI process the video and generate your notes.
 4. Explore features like editing, saving, downloading, flashcards, and quizzes.
-5. Boost your learning efficiency!
+5. Boost your learning efficiency!!
