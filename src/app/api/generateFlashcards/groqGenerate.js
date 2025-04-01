@@ -58,7 +58,7 @@ Output: Course 804 explores quantum mechanics fundamentals with focus on intuiti
         content: `Extract only the key information in 50 words or less:\n${content}`
       },
     ],
-    model: "llama-3.1-8b-instant",
+    model: 'llama-3.3-70b-versatile',
   });
 
   // Remove any line breaks and meta-text patterns

@@ -7,7 +7,7 @@ export default function Hero() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isNotesModalOpen, setIsNotesModalOpen] = useState(false);
   const handleModalSubmit = (inputValue) => {
-    console.log("Submitted URL:", inputValue);
+    console.log("Submitted URL:", inputValue);   
     setIsModalOpen(false); // Close the modal after submission
   };
   const handleNotesModalSubmit = (inputValue) => {
