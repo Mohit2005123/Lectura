@@ -30,16 +30,16 @@ Students and professionals struggle to extract and retain key information from l
 •⁠  Vasu Reena Kush Varshney *[www.linkedin.com/in/vasu-varshney-16b8a9278]*   
 •⁠  ⁠Mohit Mongia *[https://www.linkedin.com/in/mongia-mohit/]*
 
-### Our Approach:  
-1.⁠ ⁠*Modular Architecture:*  
-   The system is structured into separate frontend, backend, and AI service layers. The frontend is built using Next.js and interacts with backend APIs developed in Express.js, while AI processing is offloaded to Groq Cloud for scalability and performance.
+## 🧠 Our Approach
 
-2.⁠ ⁠*AI-Driven Transcript Handling:*  
-   Lectura extracts and cleans transcripts from YouTube videos, then passes them to the LLAMA model hosted on Groq Cloud to generate structured notes, flashcards, and quizzes. Multilingual detection ensures notes are generated in the transcript’s original language.
+1.⁠ ⁠*Why We Chose This Problem:*  
+   As students, we struggled with NPTEL and YouTube-based learning resources—especially during revision periods. Manually taking notes, revisiting long lectures, and preparing for exams was tedious and inefficient. We realized this wasn’t just our issue, but a common challenge for students and professionals alike, which led us to build Lectura.
 
-3.⁠ ⁠*Real-Time Sync and User Personalization:*  
-   Firebase is used for authentication and real-time database operations, allowing users to save, edit, and revisit their learning material. The dashboard ties everything together—enabling users to watch videos, interact with the chatbot, take tests, and track progress seamlessly.
+2.⁠ ⁠*Key Challenges We Addressed:*  
+   We focused on eliminating manual note-taking, enabling offline access, and offering a personalized, test-driven learning experience. We also addressed the lack of real-time doubt resolution by integrating an AI chatbot that acts as a virtual tutor.
 
+3.⁠ ⁠*Pivots & Breakthroughs During Hacking:*  
+   Initially, Lectura was only planned as a note generator. But during brainstorming, we realized the potential to extend it into a complete learning suite—with flashcards, quizzes, and performance feedback. Adding podcast summarization and OCR support (via vision models) was a major pivot that made the platform more versatile.
 ---
 
 ## 🛠️ Tech Stack
@@ -50,20 +50,7 @@ Students and professionals struggle to extract and retain key information from l
 •⁠  ⁠*Database:* Firebase (Authentication + Firestore)  
 •⁠  ⁠*APIs:* llama-3.3-70b-versatile Model via Groq Cloud  
 •⁠  ⁠*Hosting:* Vercel (frontend), Render (backend)
-![Screenshot](public/step-1/2.jpg)
-![Screenshot](public/step-1/3.jpg)
-![Screenshot](public/step-1/4.jpg)
-![Screenshot](public/step-2/1.jpg)
-![Screenshot](public/step-2/2.jpg)
-![Screenshot](public/step-2/3.jpg)
-![Screenshot](public/step-2/4.jpg)
-![Screenshot](public/step-3/1.jpg)
-![Screenshot](public/step-3/2.jpg)
-![Screenshot](public/step-3/3.jpg)
-![Screenshot](public/step-3/4.jpg)
-![Screenshot](public/step-4/1.png)
-![Screenshot](public/step-4/2.png)
-![Screenshot](public/step-4/3.png)
+
 ### Sponsor Technologies Used (if any):
 •⁠  ⁠✅ *Groq:* Used LLAMA model hosted on Groq Cloud for transcript processing and AI-generated content
 
@@ -78,7 +65,20 @@ Students and professionals struggle to extract and retain key information from l
 •⁠  ⁠✅ *Interactive Learning Dashboard:* Centralized space to edit notes alongside video, ask doubts, and track progress.  
 •⁠  ⁠✅ *Podcast Summarization:* Converts educational podcast audio into detailed, structured notes for on-the-go learning.  
 •⁠  ⁠✅ *Vision-Based OCR Processing:* Extracts and summarizes content from lecture slides, screenshots, or whiteboard images using advanced vision models.
-
+![Screenshot](public/step-1/2.jpg)
+![Screenshot](public/step-1/3.jpg)
+![Screenshot](public/step-1/4.jpg)
+![Screenshot](public/step-2/1.jpg)
+![Screenshot](public/step-2/2.jpg)
+![Screenshot](public/step-2/3.jpg)
+![Screenshot](public/step-2/4.jpg)
+![Screenshot](public/step-3/1.jpg)
+![Screenshot](public/step-3/2.jpg)
+![Screenshot](public/step-3/3.jpg)
+![Screenshot](public/step-3/4.jpg)
+![Screenshot](public/step-4/1.png)
+![Screenshot](public/step-4/2.png)
+![Screenshot](public/step-4/3.png)
 ---
 
 ## 📽️ Demo & Deliverables
@@ -90,13 +90,13 @@ Students and professionals struggle to extract and retain key information from l
 
 ## ✅ Tasks & Bonus Checklist
 
-•⁠  ⁠[x] *All members of the team completed the mandatory task*  
-•⁠  ⁠[ ] *Bonus Task 1 - Sharing of Badges*  
-•⁠  ⁠[ ] *Bonus Task 2 - Signing up for Sprint.dev*
+- [✅] **All members of the team completed the mandatory task - Followed at least 2 of our social channels and filled the form** (Details in Participant Manual)  
+- [✅] **All members of the team completed Bonus Task 1 - Sharing of Badges and filled the form (2 points)**  (Details in Participant Manual)
+- [✅] **All members of the team completed Bonus Task 2 - Signing up for Sprint.dev and filled the form (3 points)**  (Details in Participant Manual)
 
 ---
 
-## 🧪 How to Run the 
+## 🧪 How to Run the Project
 Either visit our live website at *[https://lectura-omega.vercel.app](https://lectura-omega.vercel.app)* or run the project locally by following the steps below:
 ### Requirements:
 •⁠  ⁠Node.js  
