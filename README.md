@@ -40,7 +40,6 @@ Students and professionals struggle to extract and retain key information from l
 
 3.⁠ ⁠*Pivots & Breakthroughs During Hacking:*  
    Initially, Lectura was only planned as a note generator. But during brainstorming, we realized the potential to extend it into a complete learning suite—with flashcards, quizzes, and performance feedback. Adding podcast summarization and OCR support (via vision models) was a major pivot that made the platform more versatile.
----
 
 ## 🛠️ Tech Stack
 
@@ -79,7 +78,7 @@ Students and professionals struggle to extract and retain key information from l
 ![Screenshot](public/step-4/1.png)
 ![Screenshot](public/step-4/2.png)
 ![Screenshot](public/step-4/3.png)
----
+
 
 ## 📽️ Demo & Deliverables
 
