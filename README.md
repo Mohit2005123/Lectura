@@ -19,10 +19,10 @@ Students and professionals struggle to extract and retain key information from l
 
 ---
 
-## 🧠 Team & Approach
+<!-- ## 🧠 Team & Approach
 
 ### Team Name:  
-⁠Scrappy Coders⁠
+⁠Scrappy Coders⁠ -->
 
 ### Team Members:  
 •⁠  ⁠Abdullah Ansari: *[https://www.linkedin.com/in/abdullah-ansari-b0a5a0276/]*  
