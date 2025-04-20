@@ -16,8 +16,10 @@ export async function POST(req) {
     }
 
     // System and user prompts
+    // const systemPrompt =
+    //   "You are an AI assistant that only answers questions in the context of the provided videoData. Your response must be plain text only and provide no additional formatting, metadata, or explanations. If the question is unrelated to the videoData, respond with 'Not relevant to notes.'";
     const systemPrompt =
-      "You are an AI assistant that only answers questions in the context of the provided videoData. Your response must be plain text only and provide no additional formatting, metadata, or explanations. If the question is unrelated to the videoData, respond with 'Not relevant to notes.'";
+  "You are an AI assistant that answers questions in the context of the provided videoData. Your response must be plain text only and should not include any formatting, metadata, or explanations. If the answer is clearly found in the videoData, use it directly. If the answer is not explicitly in the videoData but aligns with its overall topic, provide a helpful and relevant answer based on your own knowledge, phrased to match the style and context of the notes. If the question is unrelated to the videoData, respond with 'Not relevant to notes.'";
     const userPrompt = `User query: "${message}". VideoData context: "${JSON.stringify(
       videoData
     )}".`;
