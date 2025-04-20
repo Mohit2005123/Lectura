@@ -1,4 +1,4 @@
-<!-- ![github-submission-banner](https://github.com/user-attachments/assets/a1493b84-e4e2-456e-a791-ce35ee2bcf2f) -->
+![github-submission-banner](https://github.com/user-attachments/assets/a1493b84-e4e2-456e-a791-ce35ee2bcf2f)
 
 # 🚀 Lectura
 
@@ -19,10 +19,10 @@ Students and professionals struggle to extract and retain key information from l
 
 ---
 
-<!-- ## 🧠 Team & Approach
+## 🧠 Team & Approach
 
 ### Team Name:  
-⁠Scrappy Coders⁠ -->
+⁠Scrappy Coders⁠
 
 ### Team Members:  
 •⁠  ⁠Abdullah Ansari: *[https://www.linkedin.com/in/abdullah-ansari-b0a5a0276/]*  
