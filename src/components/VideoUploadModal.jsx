@@ -18,14 +18,20 @@ export default function VideoUploadModal({ isOpen, onClose, onSubmit }) {
     }
   }, [isOpen]);
 
-  const handleSubmit = async (inputValue) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const inputValue = e.target.elements.videoInput.value.trim();
+    const language = e.target.elements.language.value;
     setIsLoading(true);
     setError(null);
     
     try {
       const response = await axios.post(
         "https://lectura-transcripto-api.onrender.com/api/generate",
-        { link: inputValue }
+        { 
+          link: inputValue,
+          language: language 
+        }
       );
       
       if (response.data) {
@@ -75,11 +81,7 @@ export default function VideoUploadModal({ isOpen, onClose, onSubmit }) {
             {/* Modal Content */}
             <h2 className="text-3xl font-bold mb-6 text-center">Upload Your Video</h2>
             <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const inputValue = e.target.elements.videoInput.value.trim();
-                handleSubmit(inputValue);
-              }}
+              onSubmit={handleSubmit}
               className="space-y-6"
             >
               <div className="mb-6">
@@ -93,6 +95,36 @@ export default function VideoUploadModal({ isOpen, onClose, onSubmit }) {
                   className="w-full px-4 py-4 rounded-xl bg-[#2b2b31] text-white focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all duration-300"
                   required
                 />
+              </div>
+              <div className="mb-6">
+                <label htmlFor="language" className="block text-lg font-medium mb-3">
+                  Select Language:
+                </label>
+                <select
+                  id="language"
+                  className="w-full px-4 py-4 rounded-xl bg-[#2b2b31] text-white focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all duration-300"
+                  required
+                >
+                  <option value="">Select a language</option>
+                  <option value="en">English</option>
+                  <option value="hi">Hindi</option>
+                  <option value="bn">Bengali</option>
+                  <option value="te">Telugu</option>
+                  <option value="mr">Marathi</option>
+                  <option value="ta">Tamil</option>
+                  <option value="gu">Gujarati</option>
+                  <option value="kn">Kannada</option>
+                  <option value="ml">Malayalam</option>
+                  <option value="pa">Punjabi</option>
+                  <option value="ur">Urdu</option>
+                  <option value="or">Odia</option>
+                  <option value="as">Assamese</option>
+                  <option value="es">Spanish</option>
+                  <option value="fr">French</option>
+                  <option value="de">German</option>
+                  <option value="it">Italian</option>
+                  <option value="pt">Portuguese</option>
+                </select>
               </div>
               {error && (
                 <div className="p-4 text-red-500 bg-red-100/10 rounded-xl text-sm">
