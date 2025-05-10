@@ -29,6 +29,7 @@ export default function VideoPage() {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const [videoWidth, setVideoWidth] = useState(40); // Initial width percentage for video section
   const [chatWidth, setChatWidth] = useState(30); // Initial width percentage for chat section
 
@@ -214,22 +215,42 @@ export default function VideoPage() {
     }
   };
 
+  const typeMessage = async (message, delay = 20) => {
+    setIsTyping(true);
+    let visibleText = '';
+    const messageLength = message.length;
+    
+    for (let i = 0; i < messageLength; i++) {
+      visibleText += message[i];
+      setMessages(prev => [
+        ...prev.slice(0, -1),
+        { text: visibleText, sender: 'ai' }
+      ]);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+    setIsTyping(false);
+  };
+
   const sendMessage = async (message) => {
+    if (!message.trim() || chatLoading) return;
+
     try {
       setChatLoading(true);
+      const newUserMessage = { text: message, sender: 'user' };
+      setMessages(prev => [...prev, newUserMessage, { text: '', sender: 'ai' }]);
+      
       const response = await axios.post('/api/chat', {
         message,
         videoData,
       });
 
-      const newUserMessage = { text: message, sender: 'user' };
-      const newAiMessage = { text: response.data.response, sender: 'ai' };
-
-      setMessages(prev => [...prev, newUserMessage, newAiMessage]);
-      setInputMessage('');
+      // Start typewriter effect for AI response
+      await typeMessage(response.data.response);
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('Failed to send message');
+      toast.error('Failed to send message');
+      // Remove the empty AI message if there's an error
+      setMessages(prev => prev.slice(0, -1));
     } finally {
       setChatLoading(false);
     }
@@ -554,8 +575,20 @@ export default function VideoPage() {
                   <div className="text-lg font-semibold mb-4">Chat with AI</div>
                   <div className="flex-grow overflow-y-auto mb-4  space-y-4 max-h-[calc(80vh-10rem)] chat-messages-container">
                     {messages.map((msg, idx) => (
-                      <div key={idx} className={`p-3 rounded-lg chat-message ${msg.sender === 'user' ? 'ml-auto' : ''} max-w-[80%]`}>
+                      <div 
+                        key={idx} 
+                        className={`p-3 rounded-lg chat-message ${
+                          msg.sender === 'user' ? 'ml-auto' : ''
+                        } max-w-[80%] ${
+                          msg.sender === 'ai' && isTyping && idx === messages.length - 1
+                            ? 'border-l-4 border-blue-500'
+                            : ''
+                        }`}
+                      >
                         {msg.text}
+                        {msg.sender === 'ai' && isTyping && idx === messages.length - 1 && (
+                          <span className="inline-block w-1 h-4 bg-blue-500 ml-1 animate-pulse">|</span>
+                        )}
                       </div>
                     ))}
                     <div ref={chatEndRef} />
