@@ -111,11 +111,8 @@ export default function VideoUploadModal({ isOpen, onClose, onSubmit }) {
                   <option value="bn">Bengali</option>
                   <option value="te">Telugu</option>
                   <option value="mr">Marathi</option>
-                  <option value="ta">Tamil</option>
-                  <option value="gu">Gujarati</option>
                   <option value="kn">Kannada</option>
                   <option value="ml">Malayalam</option>
-                  <option value="pa">Punjabi</option>
                   <option value="ur">Urdu</option>
                   <option value="or">Odia</option>
                   <option value="as">Assamese</option>
