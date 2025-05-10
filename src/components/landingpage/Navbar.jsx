@@ -83,7 +83,7 @@ export default function Navbar() {
               transform group-hover:rotate-[360deg] transition-transform duration-700 ease-in-out"></div>
             <span className="text-2xl font-semibold bg-gradient-to-r from-cyan-300 to-blue-500 
               text-transparent bg-clip-text tracking-tight">
-              Lectura
+              TutorX
             </span>
           </Link>
 
