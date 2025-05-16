@@ -15,6 +15,7 @@ export default function VideoPage() {
   const params = useParams();
   const contentRef = useRef(null);
   const hiddenContentRef = useRef(null);
+  
   const chatEndRef = useRef(null);
   const [isSaving, setIsSaving] = useState(false);
   const [user, setUser] = useState(null);
@@ -33,59 +34,81 @@ export default function VideoPage() {
   const [videoWidth, setVideoWidth] = useState(40); // Initial width percentage for video section
   const [chatWidth, setChatWidth] = useState(30); // Initial width percentage for chat section
 
-  // Replace the isDragging state with specific states
-  const [isVideoDragging, setIsVideoDragging] = useState(false);
-  const [isChatDragging, setIsChatDragging] = useState(false);
+  const [activeResizer, setActiveResizer] = useState(null);
+  const [initialWidth, setInitialWidth] = useState({ video: 40, chat: 30 });
+  const [initialX, setInitialX] = useState(0);
+  const containerRef = useRef(null);
 
-  const handleVideoMouseDown = () => {
-    setIsVideoDragging(true);
-  };
+  const MIN_WIDTH = 20;
+  const MAX_VIDEO_WIDTH = 60;
+  const MAX_CHAT_WIDTH = 50;
 
-  const handleVideoMouseMove = (e) => {
-    if (!isVideoDragging) return;
-    const newWidth = (e.clientX / window.innerWidth) * 100;
-    if (newWidth > 10 && newWidth < 60) {
-      setVideoWidth(newWidth);
-    }
-  };
+  const startResize = (event, type) => {
+    event.preventDefault();
+    setActiveResizer(type);
+    setInitialX(event.clientX);
+    setInitialWidth({
+      video: videoWidth,
+      chat: chatWidth
+    });
 
-  const handleVideoMouseUp = () => {
-    setIsVideoDragging(false);
-  };
-
-  const handleChatMouseDown = () => {
-    setIsChatDragging(true);
-  };
-
-  const handleChatMouseMove = (e) => {
-    if (!isChatDragging) return;
-    const newWidth = ((window.innerWidth - e.clientX) / window.innerWidth) * 100;
-    if (newWidth > 10 && newWidth < 60) {
-      setChatWidth(newWidth);
-    }
-  };
-
-  const handleChatMouseUp = () => {
-    setIsChatDragging(false);
+    // Add the resizing class to the body
+    document.body.classList.add('resizing');
   };
 
   useEffect(() => {
-    if (isVideoDragging) {
-      window.addEventListener('mousemove', handleVideoMouseMove);
-      window.addEventListener('mouseup', handleVideoMouseUp);
-    }
-    if (isChatDragging) {
-      window.addEventListener('mousemove', handleChatMouseMove);
-      window.addEventListener('mouseup', handleChatMouseUp);
+    const handleResize = (event) => {
+      if (!activeResizer || !containerRef.current) return;
+
+      const containerWidth = containerRef.current.offsetWidth;
+      const deltaX = event.clientX - initialX;
+      const deltaPercentage = (deltaX / containerWidth) * 100;
+
+      if (activeResizer === 'video') {
+        const newWidth = Math.max(MIN_WIDTH, Math.min(MAX_VIDEO_WIDTH, initialWidth.video + deltaPercentage));
+        setVideoWidth(newWidth);
+
+        // Adjust chat width if needed
+        if (isChatOpen) {
+          const remainingWidth = 100 - newWidth - chatWidth;
+          if (remainingWidth < MIN_WIDTH) {
+            setChatWidth(100 - newWidth - MIN_WIDTH);
+          }
+        }
+      } else if (activeResizer === 'chat') {
+        const deltaChatPercentage = (-deltaX / containerWidth) * 100;
+        const newChatWidth = Math.max(MIN_WIDTH, Math.min(MAX_CHAT_WIDTH, initialWidth.chat + deltaChatPercentage));
+        setChatWidth(newChatWidth);
+
+        // Adjust video width if needed
+        if (isVideoVisible) {
+          const remainingWidth = 100 - videoWidth - newChatWidth;
+          if (remainingWidth < MIN_WIDTH) {
+            setVideoWidth(100 - newChatWidth - MIN_WIDTH);
+          }
+        }
+      }
+    };
+
+    const stopResize = () => {
+      if (activeResizer) {
+        setActiveResizer(null);
+        document.body.classList.remove('resizing');
+      }
+    };
+
+    if (activeResizer) {
+      window.addEventListener('mousemove', handleResize);
+      window.addEventListener('mouseup', stopResize);
+      window.addEventListener('mouseleave', stopResize);
     }
 
     return () => {
-      window.removeEventListener('mousemove', handleVideoMouseMove);
-      window.removeEventListener('mouseup', handleVideoMouseUp);
-      window.removeEventListener('mousemove', handleChatMouseMove);
-      window.removeEventListener('mouseup', handleChatMouseUp);
+      window.removeEventListener('mousemove', handleResize);
+      window.removeEventListener('mouseup', stopResize);
+      window.removeEventListener('mouseleave', stopResize);
     };
-  }, [isVideoDragging, isChatDragging]);
+  }, [activeResizer, initialWidth, initialX, isChatOpen, isVideoVisible]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -129,6 +152,7 @@ export default function VideoPage() {
       chatEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }, [messages]);
+  
 
   const handleHeadingChange = (index, newHeading) => {
     const updatedData = [...videoData];
@@ -323,6 +347,17 @@ export default function VideoPage() {
     return (match && match[2].length === 11) ? match[2] : null;
   };
 
+  // Calculate main content width based on video and chat visibility
+  const getMainContentStyle = () => {
+    let width = 100;
+    if (isVideoVisible) width -= videoWidth;
+    if (isChatOpen) width -= chatWidth;
+    return {
+      width: `${Math.max(width, 20)}%`,
+      transition: 'width 0.3s ease-in-out'
+    };
+  };
+
   return (
     <>
       <Toaster
@@ -336,9 +371,23 @@ export default function VideoPage() {
           },
         }}
       />
+      <style jsx global>{`
+        body.resizing {
+          cursor: col-resize !important;
+          user-select: none !important;
+          -webkit-user-select: none !important;
+        }
+        
+        body.resizing * {
+          cursor: col-resize !important;
+        }
+        
+        body.resizing iframe {
+          pointer-events: none;
+        }
+      `}</style>
       <style jsx>{`
         .pdf-mode {
-        
           background-color: white !important;
           color: black !important;
           padding: 20px !important;
@@ -406,6 +455,29 @@ export default function VideoPage() {
         .chat-button:hover {
           background-color: #2c5282;
         }
+        .drag-handle {
+          position: relative;
+          cursor: col-resize;
+          background-color: #374151;
+          transition: background-color 0.2s;
+        }
+        
+        .drag-handle:hover,
+        .drag-handle:active {
+          background-color: #4a5568;
+        }
+        
+        .drag-handle::after {
+          content: "";
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 4px;
+          height: 20px;
+          background-color: #718096;
+          border-radius: 2px;
+        }
       `}</style>
 
       <Navbar />
@@ -470,41 +542,50 @@ export default function VideoPage() {
           </div>
 
           {/* Main Content with Video Section */}
-          <div className={`flex ${isVideoVisible ? 'gap-2' : 'gap-4 justify-center'}`}>
+          <div ref={containerRef} className="flex gap-0 relative">
             {/* Video Section */}
             {isVideoVisible && videoLink && (
-              <div style={{ width: `${videoWidth}%` }} className="sticky top-24 h-[calc(100vh-6rem)]">
-                <div className="rounded-xl overflow-hidden h-full">
-                  <iframe
-                    src={`https://www.youtube.com/embed/${getYoutubeVideoId(videoLink)}`}
-                    title="YouTube video player"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="w-full h-full"
-                  ></iframe>
+              <>
+                <div 
+                  style={{ 
+                    width: `${videoWidth}%`,
+                    transition: activeResizer ? 'none' : 'width 0.3s ease-in-out'
+                  }} 
+                  className="sticky top-24 h-[calc(100vh-6rem)]"
+                >
+                  <div className="rounded-xl overflow-hidden h-full">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${getYoutubeVideoId(videoLink)}`}
+                      title="YouTube video player"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full h-full"
+                    ></iframe>
+                  </div>
                 </div>
-              </div>
-            )}
 
-            {/* Divider Line */}
-            {isVideoVisible && (
-              <div
-                className="w-1 bg-gray-700 cursor-col-resize"
-                onMouseDown={handleVideoMouseDown}
-              ></div>
+                {/* Video Resizer */}
+                <div
+                  className="w-1 drag-handle"
+                  onMouseDown={(e) => startResize(e, 'video')}
+                  style={{ cursor: 'col-resize' }}
+                ></div>
+              </>
             )}
 
             {/* Notes Section */}
-            <div style={{ 
-              width: `${isVideoVisible && isChatOpen ? (100 - videoWidth - chatWidth) : 
-                      isVideoVisible ? (100 - videoWidth) :
-                      isChatOpen ? (100 - chatWidth) : 100}%` 
-            }} className="transition-all duration-300">
+            <div 
+              style={{
+                ...getMainContentStyle(),
+                transition: activeResizer ? 'none' : 'width 0.3s ease-in-out'
+              }}
+            >
               <div
                 ref={contentRef}
-                className={`bg-black rounded-xl shadow-lg border border-gray-800 ${isVideoVisible ? 'p-6' : 'p-8'
-                  } mb-4`}
+                className={`bg-black rounded-xl shadow-lg border border-gray-800 ${
+                  isVideoVisible ? 'p-6' : 'p-8'
+                } mb-4`}
               >
                 <div className="space-y-8">
                   {videoData.map((section, index) => (
@@ -560,17 +641,24 @@ export default function VideoPage() {
               </div>
             </div>
 
-            {/* Divider Line */}
+            {/* Chat Divider Line */}
             {isChatOpen && (
               <div
-                className="w-1 bg-gray-700 cursor-col-resize"
-                onMouseDown={handleChatMouseDown}
+                className="w-1 drag-handle"
+                onMouseDown={(e) => startResize(e, 'chat')}
+                style={{ cursor: 'col-resize' }}
               ></div>
             )}
 
             {/* Chat Interface */}
             {isChatOpen && (
-              <div style={{ width: `${chatWidth}%` }} className="h-[80vh] sticky top-24 chat-container rounded-xl border border-gray-800 p-4">
+              <div 
+                style={{ 
+                  width: `${chatWidth}%`,
+                  transition: activeResizer ? 'none' : 'width 0.3s ease-in-out'
+                }} 
+                className="h-[80vh] sticky top-24 chat-container rounded-xl border border-gray-800 p-4"
+              >
                 <div className="flex flex-col h-full max-h-[calc(80vh-2rem)]">
                   <div className="text-lg font-semibold mb-4">Chat with AI</div>
                   <div className="flex-grow overflow-y-auto mb-4  space-y-4 max-h-[calc(80vh-10rem)] chat-messages-container">
