@@ -1,5 +1,3 @@
-![github-submission-banner](https://github.com/user-attachments/assets/a1493b84-e4e2-456e-a791-ce35ee2bcf2f)
-
 # 🚀 Lectura
 
 	⁠An AI-powered adaptive learning platform that transforms educational videos into structured notes, flashcards, and practice tests.
@@ -18,17 +16,6 @@ Build a creative and interactive multimodal application powered by Groq, leverag
 Students and professionals struggle to extract and retain key information from lengthy YouTube videos, especially when preparing for exams or learning new technologies. Lectura addresses this by automating the creation of structured notes, flashcards, and practice tests with AI, enabling efficient, personalized, and multilingual learning support.
 
 ---
-
-## 🧠 Team & Approach
-
-### Team Name:  
-⁠Scrappy Coders⁠
-
-### Team Members:  
-•⁠  ⁠Abdullah Ansari: *[https://www.linkedin.com/in/abdullah-ansari-b0a5a0276/]*  
-•⁠  ⁠Sparsh Gulati  *[https://www.linkedin.com/in/sparsh-gulati-665032287/]*  
-•⁠  Vasu Reena Kush Varshney *[www.linkedin.com/in/vasu-varshney-16b8a9278]*   
-•⁠  ⁠Mohit Mongia *[https://www.linkedin.com/in/mongia-mohit/]*
 
 ## 🧠 Our Approach
 
@@ -59,11 +46,9 @@ Students and professionals struggle to extract and retain key information from l
 •⁠  ⁠✅ *AI-Powered Note Generation:* Converts YouTube video transcripts into well-structured, concise notes within seconds.  
 •⁠  ⁠✅ *Multilingual Support:* Automatically detects the transcript language and generates notes in the same language.  
 •⁠  ⁠✅ *AI Chatbot (Virtual Tutor):* Provides real-time doubt-solving and concept clarification directly from the notes.  
-•⁠  ⁠✅ *Flashcards & Practice Tests:* Automatically creates revision flashcards and quizzes from notes, along with AI-powered performance feedback.  
+•⁠  ⁠✅ *Flashcards & Practice Tests:* Automatically creates revision flashcards and quizzes from notes, along with AI-powered performance feedback. 
 •⁠  ⁠✅ *Downloadable Notes:* Users can export their generated notes in PDF format for offline access.  
 •⁠  ⁠✅ *Interactive Learning Dashboard:* Centralized space to edit notes alongside video, ask doubts, and track progress.  
-•⁠  ⁠✅ *Podcast Summarization:* Converts educational podcast audio into detailed, structured notes for on-the-go learning.  
-•⁠  ⁠✅ *Vision-Based OCR Processing:* Extracts and summarizes content from lecture slides, screenshots, or whiteboard images using advanced vision models.
 ![Screenshot](public/step-1/2.jpg)
 ![Screenshot](public/step-1/3.jpg)
 ![Screenshot](public/step-1/4.jpg)
@@ -75,10 +60,6 @@ Students and professionals struggle to extract and retain key information from l
 ![Screenshot](public/step-3/2.jpg)
 ![Screenshot](public/step-3/3.jpg)
 ![Screenshot](public/step-3/4.jpg)
-![Screenshot](public/step-4/1.png)
-![Screenshot](public/step-4/2.png)
-![Screenshot](public/step-4/3.png)
-
 
 ## 📽️ Demo & Deliverables
 
@@ -86,12 +67,6 @@ Students and professionals struggle to extract and retain key information from l
 •⁠  ⁠*Pitch Deck / PPT Link:* [https://docs.google.com/presentation/d/1hIWxk1hUs1sc4iW7C5nHWVCxpmqBoAZx8lyaTqUZpmc/edit?usp=sharing]
 
 ---
-
-## ✅ Tasks & Bonus Checklist
-
-- [✅] **All members of the team completed the mandatory task - Followed at least 2 of our social channels and filled the form** (Details in Participant Manual)  
-- [✅] **All members of the team completed Bonus Task 1 - Sharing of Badges and filled the form (2 points)**  (Details in Participant Manual)
-- [✅] **All members of the team completed Bonus Task 2 - Signing up for Sprint.dev and filled the form (3 points)**  (Details in Participant Manual)
 
 ---
 
@@ -140,7 +115,3 @@ npm run dev
 •⁠  ⁠Vercel and Render for deployment  
   
 ---
-
-## 🏁 Final Words
-
-Lectura was born out of our real academic struggles. Through this hackathon, we built something that not only helps us but has the potential to benefit thousands of learners worldwide. We had an amazing time collaborating, innovating, and debugging at 3 AM—just to bring Lectura to life
