@@ -1,27 +1,27 @@
-import axios from 'axios';
+// import axios from 'axios';
 
-export default async function getTranscript(videoUrl) {
-    try{
-        const options = {
-            method: 'GET',
-            url: 'https://youtube-transcripts.p.rapidapi.com/youtube/transcript',
-            params: {
-              url: videoUrl,
-              chunkSize: '500'
-            },
-            headers: {
-              'x-rapidapi-key': '602005c5a1msh37392ce6489a5d3p1264e8jsna4cbaf21730b',
-              'x-rapidapi-host': 'youtube-transcripts.p.rapidapi.com'
-            }
-          };
-          const response = await axios.request(options);
-          return response.data.content;
-    }
-    catch(err){
-        console.error(err);
-        return '';
-    }
-}
+// export default async function getTranscript(videoUrl) {
+//     try{
+//         const options = {
+//             method: 'GET',
+//             url: 'https://youtube-transcripts.p.rapidapi.com/youtube/transcript',
+//             params: {
+//               url: videoUrl,
+//               chunkSize: '500'
+//             },
+//             headers: {
+//               'x-rapidapi-key': '602005c5a1msh37392ce6489a5d3p1264e8jsna4cbaf21730b',
+//               'x-rapidapi-host': 'youtube-transcripts.p.rapidapi.com'
+//             }
+//           };
+//           const response = await axios.request(options);
+//           return response.data.content;
+//     }
+//     catch(err){
+//         console.error(err);
+//         return '';
+//     }
+// }
 
 // import axios from 'axios';
 
