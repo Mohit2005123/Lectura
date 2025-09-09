@@ -1,16 +1,25 @@
 /** @type {import('next').NextConfig} */
-// next.config.js (ESM syntax)
-export default {
-     
-    images: {
-      remotePatterns: [
-        {
-          protocol: 'https',
-          hostname: '**', // Allow images from any domain
-        },
-      ],
-      domains: ['cdn.prod.website-files.com'],
+const nextConfig = {
+  images: {
+    // ✅ allow external images
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'cdn.prod.website-files.com',
+        pathname: '/**',
+      },
+    ],
+    // or just whitelist the domain
+    domains: ['cdn.prod.website-files.com'],
+  },
+  experimental: {
+    serverComponentsExternalPackages: ['tesseract.js', 'tesseract.js-core', 'sharp'],
+  },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '20mb',
     },
-  }
-  
-// next.config.js
+  },
+};
+
+export default nextConfig;
