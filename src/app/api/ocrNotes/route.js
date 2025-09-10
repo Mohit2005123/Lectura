@@ -34,65 +34,73 @@ export async function POST(req) {
       );
     }
 
-    const messages = [
-      {
-        role: 'user',
-        content: [
-          {
-            type: 'text',
-            text: [
-              'Extract clean text from these images (handwritten or typed).',
-              'Then group content into 5–12 concise sections.',
-              'Return ONLY JSON of the form: [{"heading":"...","content":"..."}].',
-              'The "content" MUST BE PLAIN TEXT ONLY (no HTML or Markdown).',
-              'No prose outside the JSON.'
-            ].join(' ')
-          },
-          ...images.map((url) => ({
-            type: 'image_url',
-            image_url: { url }
-          }))
-        ]
-      }
-    ];
+    // Process images in batches of up to 5
+    const chunkSize = 5;
+    const allSections = [];
+    for (let start = 0; start < images.length; start += chunkSize) {
+      const chunk = images.slice(start, start + chunkSize);
+      const messages = [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: [
+                'Extract clean text from these images (handwritten or typed).',
+                'Then group content into 5–12 concise sections.',
+                'Return ONLY JSON of the form: [{"heading":"...","content":"..."}].',
+                'The "content" MUST BE PLAIN TEXT ONLY (no HTML or Markdown).',
+                'No prose outside the JSON.'
+              ].join(' ')
+            },
+            ...chunk.map((url) => ({ type: 'image_url', image_url: { url } }))
+          ]
+        }
+      ];
 
-    const completion = await groq.chat.completions.create({
-      model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-      messages,
-      // Ask for plain text, we will extract JSON array robustly
-      response_format: { type: 'text' },
-      max_completion_tokens: 5000
-    });
+      try {
+        const completion = await groq.chat.completions.create({
+          model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+          messages,
+          response_format: { type: 'text' },
+          max_completion_tokens: 5000
+        });
 
-    const raw = completion.choices?.[0]?.message?.content ?? '';
+        const raw = completion.choices?.[0]?.message?.content ?? '';
 
-    // Expect a JSON array; parse or extract
-    let notes;
-    try {
-      const parsed = JSON.parse(raw);
-      let candidate = Array.isArray(parsed) ? parsed : parsed.notes ?? parsed.sections ?? parsed.data ?? parsed.result ?? parsed;
-      // Some models wrap as { sections: [...] }
-      if (!Array.isArray(candidate) && typeof candidate === 'object' && Array.isArray(candidate.sections)) {
-        candidate = candidate.sections;
-      }
-      notes = candidate;
-    } catch (e) {
-      // Try to extract JSON array via regex
-      const match = String(raw).match(/\[[\s\S]*\]/);
-      if (match) {
-        try { notes = JSON.parse(match[0]); } catch (_) { /* ignore */ }
-      }
-      if (!Array.isArray(notes)) {
-        notes = [{ heading: 'Extracted Notes', content: stripHtml(raw) }];
+        let notes;
+        try {
+          const parsed = JSON.parse(raw);
+          let candidate = Array.isArray(parsed) ? parsed : parsed.notes ?? parsed.sections ?? parsed.data ?? parsed.result ?? parsed;
+          if (!Array.isArray(candidate) && typeof candidate === 'object' && Array.isArray(candidate.sections)) {
+            candidate = candidate.sections;
+          }
+          notes = candidate;
+        } catch (e) {
+          const match = String(raw).match(/\[[\s\S]*\]/);
+          if (match) {
+            try { notes = JSON.parse(match[0]); } catch (_) { /* ignore */ }
+          }
+          if (!Array.isArray(notes)) {
+            notes = [{ heading: 'Extracted Notes', content: stripHtml(raw) }];
+          }
+        }
+
+        const normalizedChunk = Array.isArray(notes)
+          ? notes.map((n, i) => ({
+              heading: typeof n?.heading === 'string' && n.heading.trim() ? n.heading.trim() : `Section ${allSections.length + i + 1}`,
+              content: toPlainText(n?.content ?? n)
+            }))
+          : [{ heading: 'Extracted Notes', content: toPlainText(notes) }];
+
+        allSections.push(...normalizedChunk);
+      } catch (batchErr) {
+        console.warn('Batch OCR failed, continuing with next batch:', batchErr);
       }
     }
 
-    const normalized = Array.isArray(notes)
-      ? notes.map((n, i) => ({
-          heading: typeof n?.heading === 'string' && n.heading.trim() ? n.heading.trim() : `Section ${i + 1}`,
-          content: toPlainText(n?.content ?? n)
-        }))
-      : [{ heading: 'Extracted Notes', content: toPlainText(notes) }];
+    // If nothing produced, fail early
+    const normalized = allSections.length > 0 ? allSections : [{ heading: 'Extracted Notes', content: '' }];
 
     // Refinement step: expand and enrich notes with an open-source Groq model
     let refined = normalized;
