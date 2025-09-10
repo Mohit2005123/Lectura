@@ -55,7 +55,7 @@ Please analyze this performance and provide structured feedback in raw JSON form
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        model: "llama-3.3-70b-versatile",
+        model: "openai/gpt-oss-120b",
       });
       try {
         analysis = JSON.parse(completion.choices[0].message.content);
