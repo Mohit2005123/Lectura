@@ -16,7 +16,7 @@ export async function POST(req) {
     }
 
     // System prompt for generating mind map data
-    const systemPrompt = `You are an AI assistant that creates mind maps from structured content. 
+    const systemPrompt = `You are an AI assistant that creates mind maps from structured content.
     Generate a mind map in JSON format with the following structure:
     {
       "id": "root",
@@ -37,17 +37,24 @@ export async function POST(req) {
     }
     
     Rules:
-    1. Create a hierarchical structure with main topics as children of the root
-    2. Each node should have a unique id, text content, and children array
-    3. Organize the content logically with 2-4 main branches
-    4. Each main branch should have 2-5 sub-branches
-    5. Keep text concise but descriptive
-    6. Return ONLY valid JSON, no additional text or formatting
-    7. Use the provided title as the root text if available`;
+    1. Create a hierarchical structure that fully covers ALL provided notes/content. Use as many levels as needed to represent concepts clearly (typically 3–6 levels). Depth can vary by branch depending on the material.
+    2. Each node must include: a unique "id" (kebab-case), a short, human-readable "text", and a "children" array (empty if leaf).
+    3. Organize logically: 2–6 main branches under root, each with 2–8 sub-branches. Deeper levels should capture examples, steps, formulas, definitions, or checkpoints related to their parent.
+    4. Keep text concise and scannable. Prefer concise phrases over sentences. Avoid punctuation-heavy blocks.
+    5. Ensure coverage over the entire input; do not omit major sections. If a concept is large, break it into multiple levels rather than overly long labels.
+    6. Limit overall size: aim for 20–60 total nodes. Merge redundant items; collapse trivial repetition.
+    7. Output ONLY valid JSON (no markdown fences or explanations).
+    8. Use the provided title as the root's "text" if available.`;
 
-    const userPrompt = `Create a mind map from this content:
+    const userPrompt = `Create a mind map from this content.
     Title: ${title || "Generated Notes"}
-    Content: ${JSON.stringify(videoData)}`;
+    Content (array of sections with heading + content HTML): ${JSON.stringify(videoData)}
+
+    Requirements:
+    - Include as many levels as necessary to faithfully represent details (definitions, steps, tips, examples, formulas), balancing depth across branches.
+    - Aggregate tiny details under meaningful parents; split very long items into multiple sub-nodes.
+    - Prefer consistent naming for similar types (e.g., Steps, Tips, Examples).
+    - Output JSON only.`;
 
     // Get the response from Groq
     const groqResponse = await groq.chat.completions.create({
