@@ -1,9 +1,10 @@
 'use client';
 import { useRef, useState, useEffect } from 'react';
 import html2pdf from 'html2pdf.js';
-import { FaDownload, FaFilePdf, FaTrash, FaSave, FaRobot } from 'react-icons/fa';
+import { FaDownload, FaFilePdf, FaTrash, FaSave, FaRobot, FaProjectDiagram } from 'react-icons/fa';
 import Navbar from '../../../components/landingpage/Navbar';
 import Footer from '../../../components/Footer';
+import { MindMapModal } from '../../../components/MindMap';
 import { db, auth } from '../../../lib/firebase';
 import { doc, getDoc, updateDoc, collection, addDoc, query, where, getDocs, setDoc, arrayUnion } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -33,6 +34,9 @@ export default function VideoPage() {
   const [isTyping, setIsTyping] = useState(false);
   const [videoWidth, setVideoWidth] = useState(40); // Initial width percentage for video section
   const [chatWidth, setChatWidth] = useState(30); // Initial width percentage for chat section
+  const [isMindMapOpen, setIsMindMapOpen] = useState(false);
+  const [mindMapData, setMindMapData] = useState(null);
+  const [isGeneratingMindMap, setIsGeneratingMindMap] = useState(false);
 
   const [activeResizer, setActiveResizer] = useState(null);
   const [initialWidth, setInitialWidth] = useState({ video: 40, chat: 30 });
@@ -279,6 +283,32 @@ export default function VideoPage() {
       setChatLoading(false);
     }
   };
+
+  const generateMindMap = async () => {
+    if (!videoData || videoData.length === 0) {
+      toast.error('No notes available to generate mind map');
+      return;
+    }
+
+    try {
+      setIsGeneratingMindMap(true);
+      toast.loading('Generating mind map...', { id: 'mindmap' });
+
+      const response = await axios.post('/api/generateMindMap', {
+        videoData,
+        title: noteTitle,
+      });
+
+      setMindMapData(response.data.mindMap);
+      setIsMindMapOpen(true);
+      toast.success('Mind map generated successfully!', { id: 'mindmap' });
+    } catch (error) {
+      console.error('Error generating mind map:', error);
+      toast.error('Failed to generate mind map. Please try again.', { id: 'mindmap' });
+    } finally {
+      setIsGeneratingMindMap(false);
+    }
+  };
   if (isLoading) {
     return (
       <>
@@ -478,6 +508,83 @@ export default function VideoPage() {
           background-color: #718096;
           border-radius: 2px;
         }
+        
+        /* Mind Map Styles */
+        .mind-map-container {
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        .mind-map-node {
+          position: relative;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .mind-map-node:hover {
+          transform: translateY(-2px);
+        }
+        
+        .mind-map-node::before {
+          content: '';
+          position: absolute;
+          top: -2px;
+          left: -2px;
+          right: -2px;
+          bottom: -2px;
+          background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+          border-radius: inherit;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          pointer-events: none;
+        }
+        
+        .mind-map-node:hover::before {
+          opacity: 1;
+        }
+        
+        /* Hand-drawn effect for nodes */
+        .mind-map-node > div {
+          position: relative;
+          box-shadow: 
+            0 4px 8px rgba(0,0,0,0.1),
+            0 2px 4px rgba(0,0,0,0.06),
+            inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+        
+        .mind-map-node > div::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          border-radius: inherit;
+          background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+          pointer-events: none;
+        }
+        
+        /* Smooth animations */
+        .mind-map-container * {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Custom scrollbar for mind map */
+        .mind-map-container::-webkit-scrollbar {
+          width: 8px;
+        }
+        
+        .mind-map-container::-webkit-scrollbar-track {
+          background: #f1f5f9;
+          border-radius: 4px;
+        }
+        
+        .mind-map-container::-webkit-scrollbar-thumb {
+          background: linear-gradient(45deg, #c084fc, #3b82f6);
+          border-radius: 4px;
+        }
+        
+        .mind-map-container::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(45deg, #a855f7, #2563eb);
+        }
       `}</style>
 
       <Navbar />
@@ -531,6 +638,15 @@ export default function VideoPage() {
                 </svg>
                 {isChatOpen ? 'Close Chat' : 'Chat with AI'}
               </button> */}
+              <button
+                onClick={generateMindMap}
+                disabled={isGeneratingMindMap}
+                className={`flex items-center gap-2 ${isGeneratingMindMap ? 'bg-gray-600' : 'bg-orange-600 hover:bg-orange-700'
+                  } text-white px-4 py-2 rounded-lg transition-colors duration-200`}
+              >
+                <FaProjectDiagram />
+                {isGeneratingMindMap ? 'Generating...' : 'Create Mind Map'}
+              </button>
               <button
                 onClick={()=>setIsChatOpen(!isChatOpen)}
                 className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
@@ -716,6 +832,14 @@ export default function VideoPage() {
         className="hidden"
         style={{ position: 'absolute', top: 0, left: 0 }}
       ></div>
+
+      {/* Mind Map Modal */}
+      <MindMapModal
+        isOpen={isMindMapOpen}
+        onClose={() => setIsMindMapOpen(false)}
+        mindMapData={mindMapData}
+        title={noteTitle}
+      />
       
       <Footer />
     </>
