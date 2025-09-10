@@ -56,7 +56,7 @@ Always follow these rules:
 Please generate a quiz based on this data.`,
       }
     ],
-    model: "llama-3.3-70b-versatile"
+    model: "openai/gpt-oss-120b"
   });
 }
 

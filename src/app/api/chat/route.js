@@ -30,7 +30,7 @@ export async function POST(req) {
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      model: "llama-3.3-70b-versatile",
+      model: "openai/gpt-oss-120b",
     });
 
     const answer =
