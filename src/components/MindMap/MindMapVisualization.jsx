@@ -103,9 +103,9 @@ const MindMapVisualization = ({ data }) => {
   };
 
   const getNodeSize = (level) => {
-    if (level === 0) return 'w-56 h-16 text-lg';
-    if (level === 1) return 'w-40 h-12 text-base';
-    return 'w-32 h-10 text-sm';
+    if (level === 0) return 'h-16 text-lg';
+    if (level === 1) return 'h-12 text-base';
+    return 'h-10 text-sm';
   };
 
   const getNodeShape = (level, index) => {
@@ -193,6 +193,7 @@ const MindMapVisualization = ({ data }) => {
       const centerX = xLeft + subtreeWidthPx / 2;
       const centerY = TOP_MARGIN + depth * LEVEL_GAP;
 
+      const visualWidth = estimateNodeWidth(n.text);
       const current = {
         id: n.id,
         text: n.text,
@@ -201,7 +202,8 @@ const MindMapVisualization = ({ data }) => {
         y: centerY,
         colors: getNodeColors(depth),
         size: getNodeSize(depth),
-        shape: getNodeShape(depth, 0)
+        shape: getNodeShape(depth, 0),
+        width: visualWidth
       };
       nodes.push(current);
 
@@ -356,12 +358,12 @@ const MindMapVisualization = ({ data }) => {
                     style={{ left: `${n.x + offsetX}px`, top: `${n.y + offsetY}px`, zIndex: 10 - n.level }}
                   >
                     <div
-                      className={`${n.colors[0]} ${n.colors[1]} ${n.colors[2]} ${n.size} ${n.shape} border-2 shadow-lg transition-all duration-300 ease-in-out flex items-center justify-center font-semibold hover:scale-110 hover:shadow-xl cursor-pointer ${isHovered ? 'scale-110 shadow-xl' : ''} transform-gpu`}
+                      className={`${n.colors[0]} ${n.colors[1]} ${n.colors[2]} ${n.size} ${n.shape} border-2 shadow-lg transition-all duration-300 ease-in-out flex items-center justify-center font-semibold px-4 py-2 hover:scale-110 hover:shadow-xl cursor-pointer ${isHovered ? 'scale-110 shadow-xl' : ''} transform-gpu`}
                       onMouseEnter={() => setHoveredNode(n.id)}
                       onMouseLeave={() => setHoveredNode(null)}
-                      style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.15))', backdropFilter: 'blur(1px)' }}
+                      style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.15))', backdropFilter: 'blur(1px)', width: `${n.width}px`, maxWidth: `${n.width}px` }}
                     >
-                      <span className="px-3 text-center leading-tight">{n.text}</span>
+                      <span className="px-1 text-center leading-tight whitespace-pre-wrap break-words">{n.text}</span>
                     </div>
                   </div>
                 );
