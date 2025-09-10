@@ -85,34 +85,21 @@ const MindMapVisualization = ({ data }) => {
     };
   }, [pan.x, pan.y]);
   
-  // Pastel color palette matching the reference image
-  const getNodeColors = (level, index) => {
-    const colorSets = [
-      // Level 0 (root) - Light purple
-      ['bg-purple-200', 'text-purple-800', 'border-purple-300'],
-      // Level 1 (main branches) - Various pastels
-      [
-        ['bg-red-200', 'text-red-800', 'border-red-300'],
-        ['bg-teal-200', 'text-teal-800', 'border-teal-300'],
-        ['bg-orange-200', 'text-orange-800', 'border-orange-300'],
-        ['bg-green-200', 'text-green-800', 'border-green-300'],
-        ['bg-purple-200', 'text-purple-800', 'border-purple-300'],
-        ['bg-pink-200', 'text-pink-800', 'border-pink-300']
-      ],
-      // Level 2+ (sub-branches) - Complementary colors
-      [
-        ['bg-blue-200', 'text-blue-800', 'border-blue-300'],
-        ['bg-yellow-200', 'text-yellow-800', 'border-yellow-300'],
-        ['bg-indigo-200', 'text-indigo-800', 'border-indigo-300'],
-        ['bg-cyan-200', 'text-cyan-800', 'border-cyan-300'],
-        ['bg-rose-200', 'text-rose-800', 'border-rose-300'],
-        ['bg-lime-200', 'text-lime-800', 'border-lime-300']
-      ]
+  // Level-based color palette (same color for all nodes at a given level)
+  const getNodeColors = (level) => {
+    const palette = [
+      ['bg-purple-200', 'text-purple-800', 'border-purple-300'],  // level 0
+      ['bg-rose-200', 'text-rose-800', 'border-rose-300'],        // level 1
+      ['bg-blue-200', 'text-blue-800', 'border-blue-300'],        // level 2
+      ['bg-amber-200', 'text-amber-800', 'border-amber-300'],     // level 3
+      ['bg-emerald-200', 'text-emerald-800', 'border-emerald-300'],// level 4
+      ['bg-indigo-200', 'text-indigo-800', 'border-indigo-300'],  // level 5
+      ['bg-cyan-200', 'text-cyan-800', 'border-cyan-300'],        // level 6
+      ['bg-pink-200', 'text-pink-800', 'border-pink-300'],        // level 7
+      ['bg-lime-200', 'text-lime-800', 'border-lime-300'],        // level 8
+      ['bg-orange-200', 'text-orange-800', 'border-orange-300']   // level 9
     ];
-    
-    if (level === 0) return colorSets[0];
-    if (level === 1) return colorSets[1][index % colorSets[1].length];
-    return colorSets[2][index % colorSets[2].length];
+    return palette[level % palette.length];
   };
 
   const getNodeSize = (level) => {
@@ -212,7 +199,7 @@ const MindMapVisualization = ({ data }) => {
         level: depth,
         x: centerX,
         y: centerY,
-        colors: getNodeColors(depth, 0),
+        colors: getNodeColors(depth),
         size: getNodeSize(depth),
         shape: getNodeShape(depth, 0)
       };
