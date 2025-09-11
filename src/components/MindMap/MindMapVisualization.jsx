@@ -1,12 +1,13 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 
-const MindMapVisualization = ({ data }) => {
+const MindMapVisualization = forwardRef(({ data }, ref) => {
   const [hoveredNode, setHoveredNode] = useState(null);
   const [containerSize, setContainerSize] = useState({ width: 800, height: 600 });
   const containerRef = useRef(null);
   const viewportRef = useRef(null);
   const [scale, setScale] = useState(1);
+  const [hasUserScale, setHasUserScale] = useState(false);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const dragState = useRef({ dragging: false, startX: 0, startY: 0, startPanX: 0, startPanY: 0 });
   
@@ -42,6 +43,7 @@ const MindMapVisualization = ({ data }) => {
       e.preventDefault();
       const zoomIntensity = 0.0012; // lower is slower
       const delta = -e.deltaY * zoomIntensity;
+      setHasUserScale(true);
       setScale((prev) => {
         const next = Math.min(3, Math.max(0.2, prev * (1 + delta)));
         return next;
@@ -241,6 +243,25 @@ const MindMapVisualization = ({ data }) => {
     return { nodes, edges };
   };
 
+  // Expose imperative actions (fit to width)
+  useImperativeHandle(ref, () => ({
+    fitToWidth: () => {
+      if (!data) return;
+      const PADDING = 80;
+      const { nodes } = buildLayout(data);
+      if (!nodes || nodes.length === 0) return;
+      const minX = Math.min(...nodes.map((n) => n.x), 0);
+      const maxX = Math.max(...nodes.map((n) => n.x), 0);
+      const contentW = maxX - minX + PADDING * 2;
+      const availableW = containerSize.width;
+      const scaleX = (availableW - 20) / contentW;
+      const fitScale = Math.max(0.2, Math.min(3, scaleX * 0.98));
+      setHasUserScale(true);
+      setScale(fitScale);
+      setPan({ x: 0, y: 0 });
+    }
+  }), [data, containerSize.width]);
+
   if (!data) {
     return (
       <div className="flex items-center justify-center h-64 text-gray-500">
@@ -291,7 +312,7 @@ const MindMapVisualization = ({ data }) => {
           const scaleY = (availableH - 20) / contentH;
           const fitScale = Math.min(scaleX, scaleY);
           const autoScale = Math.max(0.5, Math.min(2.0, fitScale * 0.95));
-          const currentScale = Math.min(3, Math.max(0.2, scale || autoScale));
+          const currentScale = hasUserScale ? Math.min(3, Math.max(0.2, scale)) : autoScale;
 
           const offsetX = PADDING - minX;
           const offsetY = PADDING - minY;
@@ -374,6 +395,6 @@ const MindMapVisualization = ({ data }) => {
       </div>
     </div>
   );
-};
+});
 
 export default MindMapVisualization;

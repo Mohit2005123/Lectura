@@ -1,9 +1,17 @@
 'use client';
 import { FaProjectDiagram, FaTimes } from 'react-icons/fa';
 import MindMapVisualization from './MindMapVisualization';
+import { useRef } from 'react';
 
 const MindMapModal = ({ isOpen, onClose, mindMapData, title }) => {
+  const vizRef = useRef(null);
   if (!isOpen) return null;
+
+  const handleFitWidth = () => {
+    if (vizRef.current && typeof vizRef.current.fitToWidth === 'function') {
+      vizRef.current.fitToWidth();
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
@@ -16,19 +24,27 @@ const MindMapModal = ({ isOpen, onClose, mindMapData, title }) => {
             </div>
             <h2 className="text-2xl font-bold text-slate-800">Mind Map: {title}</h2>
           </div>
-          <button
-            onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 text-3xl font-light transition-colors duration-200 hover:bg-slate-100 rounded-full w-10 h-10 flex items-center justify-center"
-          >
-            <FaTimes />
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleFitWidth}
+              className="px-3 py-2 rounded-lg text-sm font-medium bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 shadow-sm"
+            >
+              Fit width
+            </button>
+            <button
+              onClick={onClose}
+              className="text-slate-400 hover:text-slate-600 text-3xl font-light transition-colors duration-200 hover:bg-slate-100 rounded-full w-10 h-10 flex items-center justify-center"
+            >
+              <FaTimes />
+            </button>
+          </div>
         </div>
         
         {/* Content */}
         <div className="flex-1 overflow-hidden">
           {mindMapData && (
             <div className="h-full overflow-auto">
-              <MindMapVisualization data={mindMapData} />
+              <MindMapVisualization ref={vizRef} data={mindMapData} />
             </div>
           )}
         </div>
