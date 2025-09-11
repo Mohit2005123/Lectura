@@ -46,7 +46,7 @@ export default function VidPlayer() {
         controls
         style={{ width: "80%", border: "2px solid #ccc", borderRadius: "10px" }}
       >
-        <source src="demo.mp4" type="video/mp4" />
+        <source src="/demo.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
         </div>
