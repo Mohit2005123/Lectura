@@ -39,15 +39,6 @@ export default function VidPlayer() {
         </div>
 
         <div className="w-full flex justify-center max-w-[1200px]" ref={videoRef}>
-          {/* <iframe
-            src={`https://www.youtube.com/embed/eRe7w2I6CzE?autoplay=${
-              isVisible ? 1 : 0
-            }&mute=1&cc_load_policy=0`}
-            title="How to Use the Application"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="rounded-lg shadow-lg border border-gray-300 w-full aspect-video"
-          ></iframe> */}
           <video
         autoPlay
         loop
