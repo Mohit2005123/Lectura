@@ -16,7 +16,7 @@ export const Timeline = ({ data }) => {
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start 10%", "end 50%"],
+    offset: ["start 10%", "end 70%"], // Changed from "end 50%" to "end 70%"
   });
 
   const heightTransform = useTransform(scrollYProgress, [0, 1], [0, height]);
@@ -32,7 +32,7 @@ export const Timeline = ({ data }) => {
           How It Works: Your Learning Roadmap
         </h2>
         <p className="text-lg text-neutral-300 max-w-2xl mx-auto text-center">
-          Follow this simple yet effective 3-step process to generate AI-powered
+          Follow this simple yet effective 4-step process to generate AI-powered
           notes, flashcards, and quizzes from your content. Optimize your
           learning strategy and ace your exams with confidence.
         </p>

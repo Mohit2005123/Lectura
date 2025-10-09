@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import {TimelineDemo}  from '@/components/usage'
 import DemoVideo from '@/components/vidplayer'
 import Developers from '@/components/developers'
+import { ThreeDMarqueeDemo } from '@/components/gallery';
 
 
 // hello world
@@ -19,6 +20,7 @@ export default function Home() {
       <TimelineDemo />
       <Developers />
       {/* <InfiniteMovingCardsDemo /> */}
+      <ThreeDMarqueeDemo />
       <Footer/>
     </div>
   )
