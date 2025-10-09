@@ -22,6 +22,16 @@ export default function VideoPage() {
   const params = useParams();
   const contentRef = useRef(null);
   const hiddenContentRef = useRef(null);
+  // Modern button style constants (fixed classes so Tailwind can tree-shake correctly)
+  const btnBase = "group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl text-white shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 ring-offset-2 ring-offset-black active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed overflow-hidden btn-shine btn-aura ring-1 ring-white/10";
+  const BTN = {
+    purple: `${btnBase} bg-gradient-to-br from-purple-500 to-purple-700 hover:from-purple-400 hover:to-purple-700 focus:ring-purple-400/50 shadow-purple-900/30 hover:shadow-2xl`,
+    emerald: `${btnBase} bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-600 focus:ring-emerald-400/50 shadow-emerald-900/30 hover:shadow-2xl`,
+    blue: `${btnBase} bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-600 focus:ring-blue-400/50 shadow-blue-900/30 hover:shadow-2xl`,
+    amber: `${btnBase} bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-600 focus:ring-amber-400/50 shadow-amber-900/30 hover:shadow-2xl`,
+    indigo: `${btnBase} bg-gradient-to-br from-indigo-500 to-indigo-700 hover:from-indigo-400 hover:to-indigo-700 focus:ring-indigo-400/50 shadow-indigo-900/30 hover:shadow-2xl`,
+    softGray: `${btnBase} bg-gray-700 hover:brightness-110 focus:ring-gray-400/40 hover:shadow-xl`
+  };
   
   const chatEndRef = useRef(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -327,7 +337,7 @@ export default function VideoPage() {
       setIsMindMapOpen(true);
       toast.success('Mind map generated successfully!', { id: 'mindmap' });
     } catch (error) {
-      console.error('Error generating mind map:', eraror);
+      console.error('Error generating mind map:', error);
       toast.error('Failed to generate mind map. Please try again.', { id: 'mindmap' });
     } finally {
       setIsGeneratingMindMap(false);
@@ -439,6 +449,41 @@ export default function VideoPage() {
         body.resizing iframe {
           pointer-events: none;
         }
+      `}</style>
+      <style jsx>{`
+        /* Shimmer line that sweeps across buttons */
+        .btn-shine::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.12) 20%, transparent 40%);
+          transform: translateX(-100%);
+          transition: transform 0.6s ease;
+          pointer-events: none;
+        }
+        .btn-shine:hover::after {
+          transform: translateX(100%);
+        }
+
+        /* Soft glowing aura around buttons */
+        .btn-aura::before {
+          content: "";
+          position: absolute;
+          inset: -1px;
+          border-radius: 0.75rem;
+          background: radial-gradient(120px 60px at var(--mx,50%) 10%, rgba(255,255,255,0.2), transparent 60%);
+          opacity: 0;
+          transition: opacity 0.2s ease;
+          filter: blur(12px);
+          pointer-events: none;
+        }
+        .btn-aura:hover::before {
+          opacity: 1;
+        }
+
+        /* Icon hover nudge */
+        .btn-icon-move svg { transition: transform .2s ease; }
+        .btn-icon-move:hover svg { transform: translateX(2px) translateY(-1px) scale(1.05); }
       `}</style>
       <style jsx>{`
         .pdf-mode {
@@ -628,11 +673,11 @@ export default function VideoPage() {
                 className="bg-gray-800 text-white px-4 py-2 rounded-lg w-64"
               />
             </div>
-            <div className="flex gap-4">
+            <div className="flex gap-3 flex-wrap justify-end">
               {videoLink && (
                 <button
                   onClick={() => setIsVideoVisible(!isVideoVisible)}
-                  className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                  className={`${BTN.purple} btn-icon-move`}
                 >
                   {isVideoVisible ? 'Hide Video' : 'Play Video'}
                 </button>
@@ -640,15 +685,14 @@ export default function VideoPage() {
               <button
                 onClick={handleSave}
                 disabled={isSaving}
-                className={`flex items-center gap-2 ${isSaving ? 'bg-gray-600' : 'bg-green-600 hover:bg-green-700'
-                  } text-white px-4 py-2 rounded-lg transition-colors duration-200`}
+                className={`${isSaving ? BTN.softGray : BTN.emerald} btn-icon-move`}
               >
                 <FaSave />
                 {isSaving ? 'Saving...' : 'Save Notes'}
               </button>
               <button
                 onClick={handleDownload}
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                className={`${BTN.blue} btn-icon-move`}
               >
                 <FaDownload />
                 Download PDF
@@ -665,15 +709,14 @@ export default function VideoPage() {
               <button
                 onClick={generateMindMap}
                 disabled={isGeneratingMindMap}
-                className={`flex items-center gap-2 ${isGeneratingMindMap ? 'bg-gray-600' : 'bg-orange-600 hover:bg-orange-700'
-                  } text-white px-4 py-2 rounded-lg transition-colors duration-200`}
+                className={`${isGeneratingMindMap ? BTN.softGray : BTN.amber} btn-icon-move`}
               >
                 <FaProjectDiagram />
                 {isGeneratingMindMap ? 'Generating...' : 'Create Mind Map'}
               </button>
               <button
                 onClick={()=>setIsChatOpen(!isChatOpen)}
-                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                className={`${BTN.indigo} btn-icon-move`}
               >
                 <FaRobot />
                 {isChatOpen ? 'Close Chat' : 'Chat with AI'}
@@ -929,10 +972,12 @@ export default function VideoPage() {
                       <div className="absolute right-0 top-0">
                         <button
                           onClick={() => handleDeleteSection(index)}
-                          className="text-red-500 hover:text-red-600 p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                           title="Delete section"
                         >
-                          <FaTrash />
+                          <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 ring-1 ring-inset ring-red-500/20">
+                            <FaTrash />
+                          </span>
                         </button>
                       </div>
                       <h2 className="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
@@ -969,7 +1014,7 @@ export default function VideoPage() {
               <div className={`flex justify-center ${isVideoVisible ? 'mb-6' : 'mb-8'}`}>
                 <button
                   onClick={handleAddNewSection}
-                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors duration-200 text-lg"
+                  className={`${BTN.emerald} px-6 py-3 text-lg btn-icon-move`}
                 >
                   + Add New Section
                 </button>
