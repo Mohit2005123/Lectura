@@ -17,22 +17,8 @@ export async function POST(req) {
     //   return NextResponse.json({ error: 'Max 5 images allowed' }, { status: 400 });
     // }
 
-    // Optional: reject huge base64 data URLs (~> 4MB total limit on base64 requests)
-    const totalBase64Bytes = images
-      .filter((u) => typeof u === 'string' && u.startsWith('data:'))
-      .reduce((acc, u) => {
-        const comma = u.indexOf(',');
-        const b64Len = comma !== -1 ? u.length - comma - 1 : 0;
-        // Base64 length → bytes (approx): * 0.75
-        return acc + Math.ceil(b64Len * 0.75);
-      }, 0);
-
-    if (totalBase64Bytes > 4 * 1024 * 1024) {
-      return NextResponse.json(
-        { error: 'Base64 payload too large. Upload images and send URLs instead.' },
-        { status: 413 }
-      );
-    }
+    // Note: previously rejected base64 payloads > 4MB with 413.
+    // We now allow larger payloads and rely on upstream/platform limits.
 
     // Process images in batches of up to 5
     const chunkSize = 5;
