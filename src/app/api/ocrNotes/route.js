@@ -110,7 +110,7 @@ export async function POST(req) {
         'Refine and EXPAND the provided notes for clarity and completeness.',
         'Add missing background, definitions, key concepts, examples, analogies, and use-cases.',
         'Keep language clear, neutral, and third-person (no references to speaker or video).',
-        'Keep 15-20 sections. You may improve headings.',
+        'Keep 20-30 sections. You may improve headings.',
         'Output STRICT JSON array only: [{"heading":"...","content":"..."}] with plain text in content (no HTML/Markdown).',
       ].join(' ');
 

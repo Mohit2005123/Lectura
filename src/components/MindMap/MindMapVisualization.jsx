@@ -87,19 +87,19 @@ const MindMapVisualization = forwardRef(({ data }, ref) => {
     };
   }, [pan.x, pan.y]);
   
-  // Level-based color palette (same color for all nodes at a given level)
+  // Dark theme color palette with gradients
   const getNodeColors = (level) => {
     const palette = [
-      ['bg-purple-200', 'text-purple-800', 'border-purple-300'],  // level 0
-      ['bg-rose-200', 'text-rose-800', 'border-rose-300'],        // level 1
-      ['bg-blue-200', 'text-blue-800', 'border-blue-300'],        // level 2
-      ['bg-amber-200', 'text-amber-800', 'border-amber-300'],     // level 3
-      ['bg-emerald-200', 'text-emerald-800', 'border-emerald-300'],// level 4
-      ['bg-indigo-200', 'text-indigo-800', 'border-indigo-300'],  // level 5
-      ['bg-cyan-200', 'text-cyan-800', 'border-cyan-300'],        // level 6
-      ['bg-pink-200', 'text-pink-800', 'border-pink-300'],        // level 7
-      ['bg-lime-200', 'text-lime-800', 'border-lime-300'],        // level 8
-      ['bg-orange-200', 'text-orange-800', 'border-orange-300']   // level 9
+      ['bg-gradient-to-br from-purple-600 to-purple-700', 'text-white', 'border-purple-400/50'],  // level 0
+      ['bg-gradient-to-br from-blue-600 to-blue-700', 'text-white', 'border-blue-400/50'],        // level 1
+      ['bg-gradient-to-br from-emerald-600 to-emerald-700', 'text-white', 'border-emerald-400/50'],// level 2
+      ['bg-gradient-to-br from-orange-600 to-orange-700', 'text-white', 'border-orange-400/50'],   // level 3
+      ['bg-gradient-to-br from-indigo-600 to-indigo-700', 'text-white', 'border-indigo-400/50'],  // level 4
+      ['bg-gradient-to-br from-pink-600 to-pink-700', 'text-white', 'border-pink-400/50'],        // level 5
+      ['bg-gradient-to-br from-cyan-600 to-cyan-700', 'text-white', 'border-cyan-400/50'],        // level 6
+      ['bg-gradient-to-br from-rose-600 to-rose-700', 'text-white', 'border-rose-400/50'],        // level 7
+      ['bg-gradient-to-br from-lime-600 to-lime-700', 'text-white', 'border-lime-400/50'],        // level 8
+      ['bg-gradient-to-br from-amber-600 to-amber-700', 'text-white', 'border-amber-400/50']       // level 9
     ];
     return palette[level % palette.length];
   };
@@ -161,9 +161,9 @@ const MindMapVisualization = forwardRef(({ data }, ref) => {
   const estimateNodeWidth = (text) => {
     const safe = typeof text === 'string' ? text : '';
     const longestWord = safe.split(/\s+/).reduce((m, w) => Math.max(m, w.length), 0);
-    const avg = Math.min(40, Math.ceil(safe.length / 1.8));
-    const base = Math.max(longestWord * 9, avg * 7); // px estimate
-    return Math.max(140, Math.min(320, base + 60));  // clamp and add padding
+    const avg = Math.min(50, Math.ceil(safe.length / 1.5));
+    const base = Math.max(longestWord * 10, avg * 8); // px estimate
+    return Math.max(160, Math.min(400, base + 80));  // clamp and add padding
   };
 
   const getLeafCount = (n) => {
@@ -216,12 +216,31 @@ const MindMapVisualization = forwardRef(({ data }, ref) => {
         const childCenterX = cursor + childWidthPx / 2;
         const childCenterY = TOP_MARGIN + (depth + 1) * LEVEL_GAP;
 
-        // Edge (verticalish bezier)
-        const c1x = centerX;
-        const c1y = centerY + LEVEL_GAP * 0.3;
-        const c2x = childCenterX;
-        const c2y = childCenterY - LEVEL_GAP * 0.3;
-        edges.push({ x1: centerX, y1: centerY, x2: childCenterX, y2: childCenterY, c1x, c1y, c2x, c2y });
+        // Create direct connection from parent to child
+        const trunkLength = 60;
+        const nodeWidth = estimateNodeWidth(n.text);
+        const trunkEndX = centerX + nodeWidth / 2 + trunkLength; // Extends from right edge
+        const trunkEndY = centerY;
+        
+        // Add main trunk - starts from right edge of node
+        edges.push({ 
+          x1: centerX + nodeWidth / 2, // Right edge of the node
+          y1: centerY, 
+          x2: trunkEndX, 
+          y2: trunkEndY, 
+          isTrunk: true,
+          level: depth
+        });
+        
+        // Add direct connection to child
+        edges.push({ 
+          x1: trunkEndX, 
+          y1: trunkEndY, 
+          x2: childCenterX, 
+          y2: childCenterY, 
+          isChildConnection: true,
+          level: depth
+        });
 
         // Recurse into child with its allocated left bound
         layoutNode(child, depth + 1, cursor);
@@ -274,14 +293,7 @@ const MindMapVisualization = forwardRef(({ data }, ref) => {
   }
 
   return (
-    <div className="mind-map-container bg-gradient-to-br from-slate-50 via-white to-slate-100 min-h-full relative overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-10 left-10 w-32 h-32 bg-purple-100 rounded-full opacity-20 blur-xl"></div>
-        <div className="absolute top-32 right-20 w-24 h-24 bg-blue-100 rounded-full opacity-20 blur-xl"></div>
-        <div className="absolute bottom-20 left-1/4 w-40 h-40 bg-pink-100 rounded-full opacity-20 blur-xl"></div>
-        <div className="absolute bottom-10 right-10 w-28 h-28 bg-orange-100 rounded-full opacity-20 blur-xl"></div>
-      </div>
+    <div className="mind-map-container bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 min-h-full relative overflow-hidden">
       
       <div 
         ref={containerRef}
@@ -338,35 +350,69 @@ const MindMapVisualization = forwardRef(({ data }, ref) => {
                 preserveAspectRatio="none"
                 style={{ zIndex: 1 }}
               >
-                {edges.map((e, i) => (
-                  <g key={`edge-${i}`}>
-                    <path
-                      d={`M ${e.x1 + offsetX} ${e.y1 + offsetY} C ${e.c1x + offsetX} ${e.c1y + offsetY}, ${e.c2x + offsetX} ${e.c2y + offsetY}, ${e.x2 + offsetX} ${e.y2 + offsetY}`}
-                      stroke="#6b7280"
-                      strokeWidth="2.5"
-                      fill="none"
-                      className="opacity-70"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d={`M ${e.x1 + offsetX} ${e.y1 + offsetY} C ${e.c1x + offsetX} ${e.c1y + offsetY}, ${e.c2x + offsetX} ${e.c2y + offsetY}, ${e.x2 + offsetX} ${e.y2 + offsetY}`}
-                      stroke="#ffffff"
-                      strokeWidth="1"
-                      fill="none"
-                      className="opacity-40"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d={`M ${e.x2 - 6 + offsetX} ${e.y2 - 6 + offsetY} L ${e.x2 + offsetX} ${e.y2 + offsetY} L ${e.x2 + 6 + offsetX} ${e.y2 - 6 + offsetY}`}
-                      stroke="#6b7280"
-                      strokeWidth="2.5"
-                      fill="none"
-                      className="opacity-70"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </g>
-                ))}
+                {edges.map((e, i) => {
+                  // Different styling for different edge types
+                  const getEdgeStyle = (edge) => {
+                    if (edge.isTrunk) {
+                      return {
+                        strokeWidth: 4,
+                        opacity: 1,
+                        stroke: '#8b5cf6'
+                      };
+                    } else if (edge.isBranch) {
+                      return {
+                        strokeWidth: 3,
+                        opacity: 0.8,
+                        stroke: '#3b82f6'
+                      };
+                    } else if (edge.isChildConnection) {
+                      return {
+                        strokeWidth: 2,
+                        opacity: 0.7,
+                        stroke: '#10b981'
+                      };
+                    }
+                    return {
+                      strokeWidth: 3,
+                      opacity: 1,
+                      stroke: '#8b5cf6'
+                    };
+                  };
+                  
+                  const edgeStyle = getEdgeStyle(e);
+                  
+                  return (
+                    <g key={`edge-${i}`}>
+                      {/* Glow effect for main trunk only */}
+                      {e.isTrunk && (
+                        <line
+                          x1={e.x1 + offsetX}
+                          y1={e.y1 + offsetY}
+                          x2={e.x2 + offsetX}
+                          y2={e.y2 + offsetY}
+                          stroke={edgeStyle.stroke}
+                          strokeWidth="6"
+                          opacity="0.2"
+                          filter="blur(3px)"
+                        />
+                      )}
+                      {/* Main line */}
+                      <line
+                        x1={e.x1 + offsetX}
+                        y1={e.y1 + offsetY}
+                        x2={e.x2 + offsetX}
+                        y2={e.y2 + offsetY}
+                        stroke={edgeStyle.stroke}
+                        strokeWidth={edgeStyle.strokeWidth}
+                        strokeLinecap="round"
+                        opacity={edgeStyle.opacity}
+                        style={{
+                          filter: e.isTrunk ? 'drop-shadow(0 3px 6px rgba(0,0,0,0.4))' : 'drop-shadow(0 1px 2px rgba(0,0,0,0.2))'
+                        }}
+                      />
+                    </g>
+                  );
+                })}
               </svg>
 
               {/* Render positioned nodes above the SVG */}
@@ -376,15 +422,23 @@ const MindMapVisualization = forwardRef(({ data }, ref) => {
                   <div
                     key={n.id}
                     className="mind-map-node absolute transform -translate-x-1/2 -translate-y-1/2"
-                    style={{ left: `${n.x + offsetX}px`, top: `${n.y + offsetY}px`, zIndex: 10 - n.level }}
+                    style={{ 
+                      left: `${n.x + offsetX}px`, 
+                      top: `${n.y + offsetY}px`, 
+                      zIndex: 10 - n.level
+                    }}
                   >
                     <div
-                      className={`${n.colors[0]} ${n.colors[1]} ${n.colors[2]} ${n.size} ${n.shape} border-2 shadow-lg transition-all duration-300 ease-in-out flex items-center justify-center font-semibold px-4 py-2 hover:scale-110 hover:shadow-xl cursor-pointer ${isHovered ? 'scale-110 shadow-xl' : ''} transform-gpu`}
+                      className={`${n.colors[0]} ${n.colors[1]} ${n.colors[2]} ${n.size} ${n.shape} border-2 shadow-xl transition-all duration-300 flex items-center justify-center font-medium px-4 py-2 hover:scale-105 hover:shadow-2xl cursor-pointer ${isHovered ? 'scale-105 shadow-2xl' : ''} backdrop-blur-sm`}
                       onMouseEnter={() => setHoveredNode(n.id)}
                       onMouseLeave={() => setHoveredNode(null)}
-                      style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.15))', backdropFilter: 'blur(1px)', width: `${n.width}px`, maxWidth: `${n.width}px` }}
+                      style={{ 
+                        filter: 'drop-shadow(0 8px 25px rgba(0,0,0,0.4))',
+                        width: `${n.width}px`, 
+                        maxWidth: `${n.width}px` 
+                      }}
                     >
-                      <span className="px-1 text-center leading-tight whitespace-pre-wrap break-words">{n.text}</span>
+                      <span className="px-2 text-center leading-tight break-words">{n.text}</span>
                     </div>
                   </div>
                 );
@@ -396,5 +450,7 @@ const MindMapVisualization = forwardRef(({ data }, ref) => {
     </div>
   );
 });
+
+MindMapVisualization.displayName = 'MindMapVisualization';
 
 export default MindMapVisualization;

@@ -1,16 +1,41 @@
 /** @type {import('next').NextConfig} */
-// next.config.js (ESM syntax)
-export default {
-     
-    images: {
-      remotePatterns: [
-        {
-          protocol: 'https',
-          hostname: '**', // Allow images from any domain
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**', // Allow images from any domain
+      },
+    ],
+    domains: ['cdn.prod.website-files.com'],
+  },
+  webpack: (config, { isServer }) => {
+    // Handle Firebase modules
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+    
+    // Handle Firebase vendor chunks
+    config.optimization.splitChunks = {
+      ...config.optimization.splitChunks,
+      cacheGroups: {
+        ...config.optimization.splitChunks.cacheGroups,
+        firebase: {
+          test: /[\\/]node_modules[\\/]@?firebase/,
+          name: 'firebase',
+          chunks: 'all',
+          priority: 10,
         },
-      ],
-      domains: ['cdn.prod.website-files.com'],
-    },
-  }
-  
-// next.config.js
+      },
+    };
+    
+    return config;
+  },
+};
+
+export default nextConfig;

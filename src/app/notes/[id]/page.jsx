@@ -303,7 +303,7 @@ export default function VideoPage() {
       setIsMindMapOpen(true);
       toast.success('Mind map generated successfully!', { id: 'mindmap' });
     } catch (error) {
-      console.error('Error generating mind map:', error);
+      console.error('Error generating mind map:', eraror);
       toast.error('Failed to generate mind map. Please try again.', { id: 'mindmap' });
     } finally {
       setIsGeneratingMindMap(false);
