@@ -128,7 +128,7 @@ export default function Features() {
             {
               category: 'AI Learning',
               title: 'YouTube → Study Notes',
-              src: 'https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b',
+              src: '/step-1/4.jpg',
               content: (
                 <div className="text-neutral-600 dark:text-neutral-200 space-y-4">
                   <p>
@@ -145,7 +145,7 @@ export default function Features() {
             {
               category: 'Interactive Tools',
               title: 'Flashcards & Quizzes',
-              src: 'https://images.unsplash.com/photo-1531482615713-2afd69097998',
+              src: '/step-2/2.jpg',
               content: (
                 <div className="text-neutral-600 dark:text-neutral-200 space-y-4">
                   <p>
@@ -162,7 +162,7 @@ export default function Features() {
             {
               category: 'Analytics',
               title: 'Performance Insights',
-              src: 'https://images.unsplash.com/photo-1556157382-97eda2d62296',
+              src: '/step-3/4.jpg',
               content: (
                 <div className="text-neutral-600 dark:text-neutral-200 space-y-4">
                   <p>
@@ -177,43 +177,9 @@ export default function Features() {
               ),
             },
             {
-              category: 'Interactive Tools',
-              title: 'Flashcards & Quizzes',
-              src: 'https://images.unsplash.com/photo-1531482615713-2afd69097998',
-              content: (
-                <div className="text-neutral-600 dark:text-neutral-200 space-y-4">
-                  <p>
-                    Auto-generate flashcards and adaptive quizzes for your notes.
-                  </p>
-                  <ul className="list-disc pl-6 space-y-1">
-                    <li>Instant question generation</li>
-                    <li>Review progress tracking</li>
-                    <li>Difficulty-based learning</li>
-                  </ul>
-                </div>
-              ),
-            },
-            {
-              category: 'Interactive Tools',
-              title: 'Flashcards & Quizzes',
-              src: 'https://images.unsplash.com/photo-1531482615713-2afd69097998',
-              content: (
-                <div className="text-neutral-600 dark:text-neutral-200 space-y-4">
-                  <p>
-                    Auto-generate flashcards and adaptive quizzes for your notes.
-                  </p>
-                  <ul className="list-disc pl-6 space-y-1">
-                    <li>Instant question generation</li>
-                    <li>Review progress tracking</li>
-                    <li>Difficulty-based learning</li>
-                  </ul>
-                </div>
-              ),
-            },
-            {
-              category: 'Interactive Tools',
-              title: 'Flashcards & Quizzes',
-              src: 'https://images.unsplash.com/photo-1531482615713-2afd69097998',
+              category: 'Test Yourself',
+              title: 'Practice Quizzes',
+              src: '/step-3/2.jpg',
               content: (
                 <div className="text-neutral-600 dark:text-neutral-200 space-y-4">
                   <p>
