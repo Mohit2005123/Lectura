@@ -27,7 +27,10 @@ body {
   display: inline-block;
   animation: blink 1s step-end infinite;
 }
-
+.drop-shadow-glow { filter: drop-shadow(0 0 12px #a78bfa); }
+ .drop-shadow-glow {
+   filter: drop-shadow(0 0 12px rgba(167, 139, 250, 0.6));
+ }
 .wave-letter {
   display: inline-block;
   animation: wave 0.8s ease-in-out infinite;
