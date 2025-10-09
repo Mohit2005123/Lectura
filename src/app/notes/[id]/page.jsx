@@ -1,9 +1,15 @@
 'use client';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import html2pdf from 'html2pdf.js';
-import { FaDownload, FaFilePdf, FaTrash, FaSave, FaRobot, FaProjectDiagram } from 'react-icons/fa';
+import { 
+  FaDownload, FaFilePdf, FaTrash, FaSave, FaRobot, FaProjectDiagram,
+  FaBold, FaItalic, FaUnderline, FaStrikethrough, FaSuperscript, FaSubscript,
+  FaLink, FaUnlink, FaUndo, FaRedo, FaHighlighter, FaPalette, FaFont, FaTextHeight, FaMinus,
+  FaAlignLeft, FaAlignCenter, FaAlignRight, FaAlignJustify
+} from 'react-icons/fa';
 import Navbar from '../../../components/landingpage/Navbar';
 import Footer from '../../../components/Footer';
+import RichTextEditor from '../../../components/RichTextEditor';
 import { MindMapModal } from '../../../components/MindMap';
 import { db, auth } from '../../../lib/firebase';
 import { doc, getDoc, updateDoc, collection, addDoc, query, where, getDocs, setDoc, arrayUnion } from 'firebase/firestore';
@@ -37,6 +43,24 @@ export default function VideoPage() {
   const [isMindMapOpen, setIsMindMapOpen] = useState(false);
   const [mindMapData, setMindMapData] = useState(null);
   const [isGeneratingMindMap, setIsGeneratingMindMap] = useState(false);
+  const [activeEditor, setActiveEditor] = useState({ type: null, index: null });
+  const contentEditorRefs = useRef([]);
+  const headingEditorRefs = useRef([]);
+
+  const execOnActive = (cmd, value = null) => {
+    const { type, index } = activeEditor || {};
+    let ref = null;
+    if (type === 'content') ref = contentEditorRefs.current[index];
+    if (type === 'heading') ref = headingEditorRefs.current[index];
+    if (!ref) {
+      toast.error('Click into a section first');
+      return;
+    }
+    try {
+      ref.focus();
+      ref.exec(cmd, value);
+    } catch (e) {}
+  };
 
   const [activeResizer, setActiveResizer] = useState(null);
   const [initialWidth, setInitialWidth] = useState({ video: 40, chat: 30 });
@@ -657,6 +681,199 @@ export default function VideoPage() {
             </div>
           </div>
 
+          {/* Global formatting toolbar positioned below header */}
+          <div className="flex items-center flex-wrap gap-2 mb-4 mt-2">
+            <button
+              onClick={() => execOnActive('bold')}
+              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700"
+              title="Bold"
+            >
+              <FaBold className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => execOnActive('italic')}
+              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700 italic"
+              title="Italic"
+            >
+              <FaItalic className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => execOnActive('underline')}
+              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700 underline"
+              title="Underline"
+            >
+              <FaUnderline className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => execOnActive('strikeThrough')}
+              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700"
+              title="Strikethrough"
+            >
+              <FaStrikethrough className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => execOnActive('superscript')}
+              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700"
+              title="Superscript"
+            >
+              <FaSuperscript className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => execOnActive('subscript')}
+              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700"
+              title="Subscript"
+            >
+              <FaSubscript className="w-4 h-4" />
+            </button>
+
+            {/* Heading selector removed as requested */}
+
+            {/* Font size */}
+            <div className="flex items-center gap-2">
+              <FaTextHeight className="w-4 h-4 text-gray-300" title="Font size" />
+              <select
+              onChange={(e) => {
+                const size = e.target.value; // 1..7 legacy sizes
+                execOnActive('fontSize', size);
+              }}
+              defaultValue="3"
+              className="px-2 py-2 rounded border border-gray-700 bg-gray-800 text-white"
+              title="Font size"
+            >
+              <option value="1">XS</option>
+              <option value="2">SM</option>
+              <option value="3">MD</option>
+              <option value="4">LG</option>
+              <option value="5">XL</option>
+              <option value="6">2XL</option>
+              <option value="7">3XL</option>
+              </select>
+            </div>
+
+            {/* Font family */}
+            <div className="flex items-center gap-2">
+              <FaFont className="w-4 h-4 text-gray-300" title="Font family" />
+              <select
+                onChange={(e) => execOnActive('fontName', e.target.value)}
+                defaultValue="inherit"
+                className="px-2 py-2 rounded border border-gray-700 bg-gray-800 text-white"
+                title="Font family"
+              >
+                <option value="inherit">Default</option>
+                <option value="Arial">Arial</option>
+                <option value="Times New Roman">Times</option>
+                <option value="Courier New">Monospace</option>
+                <option value="Georgia">Georgia</option>
+              </select>
+            </div>
+
+            {/* Text color */}
+            <div className="flex items-center gap-2">
+              <FaPalette className="w-4 h-4 text-gray-300" title="Text color" />
+              <input
+              type="color"
+              onChange={(e) => {
+                const color = e.target.value;
+                execOnActive('foreColor', color);
+              }}
+              className="h-9 w-10 p-1 rounded border border-gray-700 bg-gray-800"
+              title="Text color"
+              />
+            </div>
+
+            {/* Highlight color */}
+            <div className="flex items-center gap-2">
+              <FaHighlighter className="w-4 h-4 text-gray-300" title="Highlight color" />
+              <input
+              type="color"
+              onChange={(e) => {
+                const color = e.target.value;
+                execOnActive('hiliteColor', color);
+              }}
+              className="h-9 w-10 p-1 rounded border border-gray-700 bg-gray-800"
+              title="Highlight color"
+              />
+            </div>
+
+            {/* Link controls */}
+            <button
+              onClick={() => {
+                const url = prompt('Enter URL');
+                if (!url) return;
+                execOnActive('createLink', url);
+              }}
+              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700"
+              title="Insert link"
+            >
+              <FaLink className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => execOnActive('unlink')}
+              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700"
+              title="Remove link"
+            >
+              <FaUnlink className="w-4 h-4" />
+            </button>
+
+            {/* Lists removed as requested */}
+
+            {/* Alignment */}
+            <div className="flex items-center gap-2">
+              <FaAlignLeft className="w-4 h-4 text-gray-300" title="Align" />
+              <select
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === 'left') execOnActive('justifyLeft');
+                if (val === 'center') execOnActive('justifyCenter');
+                if (val === 'right') execOnActive('justifyRight');
+                if (val === 'justify') execOnActive('justifyFull');
+              }}
+              defaultValue="left"
+              className="px-2 py-2 rounded border border-gray-700 bg-gray-800 text-white"
+              title="Align"
+            >
+              <option value="left">Left</option>
+              <option value="center">Center</option>
+              <option value="right">Right</option>
+              <option value="justify">Justify</option>
+              </select>
+            </div>
+
+            {/* Horizontal rule */}
+            <button
+              onClick={() => execOnActive('insertHorizontalRule')}
+              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700"
+              title="Insert horizontal rule"
+            >
+              <FaMinus className="w-4 h-4" />
+            </button>
+
+            {/* Clear formatting */}
+            <button
+              onClick={() => execOnActive('removeFormat')}
+              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700"
+              title="Clear formatting"
+            >
+              Clear
+            </button>
+
+            {/* Undo/Redo */}
+            <button
+              onClick={() => execOnActive('undo')}
+              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700"
+              title="Undo"
+            >
+              <FaUndo className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => execOnActive('redo')}
+              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700"
+              title="Redo"
+            >
+              <FaRedo className="w-4 h-4" />
+            </button>
+          </div>
+
           {/* Main Content with Video Section */}
           <div ref={containerRef} className="flex gap-0 relative">
             {/* Video Section */}
@@ -722,24 +939,26 @@ export default function VideoPage() {
                         <span className="w-8 h-8 flex items-center justify-center bg-blue-900 text-blue-200 rounded-full text-sm">
                           {index + 1}
                         </span>
-                        <div
-                          contentEditable
-                          suppressContentEditableWarning
-                          onBlur={(e) => handleHeadingChange(index, e.target.textContent)}
-                          className="outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 w-full"
-                        >
-                          {section.heading}
+                        <div className="w-full">
+                          <RichTextEditor
+                            ref={(el) => (headingEditorRefs.current[index] = el)}
+                            value={section.heading}
+                            onChange={(html) => handleHeadingChange(index, html)}
+                            onFocus={() => setActiveEditor({ type: 'heading', index })}
+                            showToolbar={false}
+                            placeholder="Section title"
+                          />
                         </div>
                       </h2>
                       <div className="pl-10">
-                        <div
-                          contentEditable
-                          suppressContentEditableWarning
-                          onBlur={(e) => handleContentChange(index, e.target.innerHTML)}
-                          dangerouslySetInnerHTML={{ __html: section.content }}
-                          className="text-gray-300 leading-relaxed whitespace-pre-wrap outline-none focus:ring-2 focus:ring-blue-500 rounded px-2"
-                        >
-                        </div>
+                        <RichTextEditor
+                          ref={(el) => (contentEditorRefs.current[index] = el)}
+                          value={section.content}
+                          onChange={(html) => handleContentChange(index, html)}
+                          onFocus={() => setActiveEditor({ type: 'content', index })}
+                          showToolbar={false}
+                          placeholder="Add your content here..."
+                        />
                       </div>
                     </div>
                   ))}
@@ -845,3 +1064,4 @@ export default function VideoPage() {
     </>
   );
 }
+
