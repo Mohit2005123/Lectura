@@ -87,13 +87,13 @@ const MindMapVisualization = forwardRef(({ data }, ref) => {
     };
   }, [pan.x, pan.y]);
   
-  // Dark theme color palette with gradients
+  // Dark theme color palette with distinct colors for each level
   const getNodeColors = (level) => {
     const palette = [
-      ['bg-gradient-to-br from-purple-600 to-purple-700', 'text-white', 'border-purple-400/50'],  // level 0
-      ['bg-gradient-to-br from-blue-600 to-blue-700', 'text-white', 'border-blue-400/50'],        // level 1
-      ['bg-gradient-to-br from-emerald-600 to-emerald-700', 'text-white', 'border-emerald-400/50'],// level 2
-      ['bg-gradient-to-br from-orange-600 to-orange-700', 'text-white', 'border-orange-400/50'],   // level 3
+      ['bg-gradient-to-br from-purple-600 to-purple-700', 'text-white', 'border-purple-400/50'],  // level 0 - main topic
+      ['bg-gradient-to-br from-blue-600 to-blue-700', 'text-white', 'border-blue-400/50'],        // level 1 - subtopics
+      ['bg-gradient-to-br from-emerald-600 to-emerald-700', 'text-white', 'border-emerald-400/50'],// level 2 - details
+      ['bg-gradient-to-br from-orange-600 to-orange-700', 'text-white', 'border-orange-400/50'],   // level 3 - more details
       ['bg-gradient-to-br from-indigo-600 to-indigo-700', 'text-white', 'border-indigo-400/50'],  // level 4
       ['bg-gradient-to-br from-pink-600 to-pink-700', 'text-white', 'border-pink-400/50'],        // level 5
       ['bg-gradient-to-br from-cyan-600 to-cyan-700', 'text-white', 'border-cyan-400/50'],        // level 6
@@ -222,20 +222,12 @@ const MindMapVisualization = forwardRef(({ data }, ref) => {
         const trunkEndX = centerX + nodeWidth / 2 + trunkLength; // Extends from right edge
         const trunkEndY = centerY;
         
-        // Add main trunk - starts from right edge of node
-        edges.push({ 
-          x1: centerX + nodeWidth / 2, // Right edge of the node
-          y1: centerY, 
-          x2: trunkEndX, 
-          y2: trunkEndY, 
-          isTrunk: true,
-          level: depth
-        });
+        // Skip the horizontal trunk lines for cleaner look
         
-        // Add direct connection to child
+        // Add direct connection from parent to child
         edges.push({ 
-          x1: trunkEndX, 
-          y1: trunkEndY, 
+          x1: centerX, 
+          y1: centerY, 
           x2: childCenterX, 
           y2: childCenterY, 
           isChildConnection: true,
@@ -351,31 +343,19 @@ const MindMapVisualization = forwardRef(({ data }, ref) => {
                 style={{ zIndex: 1 }}
               >
                 {edges.map((e, i) => {
-                  // Different styling for different edge types
+                  // Dark theme edge styling
                   const getEdgeStyle = (edge) => {
-                    if (edge.isTrunk) {
-                      return {
-                        strokeWidth: 4,
-                        opacity: 1,
-                        stroke: '#8b5cf6'
-                      };
-                    } else if (edge.isBranch) {
-                      return {
-                        strokeWidth: 3,
-                        opacity: 0.8,
-                        stroke: '#3b82f6'
-                      };
-                    } else if (edge.isChildConnection) {
+                    if (edge.isChildConnection) {
                       return {
                         strokeWidth: 2,
-                        opacity: 0.7,
-                        stroke: '#10b981'
+                        opacity: 0.6,
+                        stroke: '#9ca3af'
                       };
                     }
                     return {
-                      strokeWidth: 3,
-                      opacity: 1,
-                      stroke: '#8b5cf6'
+                      strokeWidth: 2,
+                      opacity: 0.6,
+                      stroke: '#9ca3af'
                     };
                   };
                   
@@ -383,20 +363,7 @@ const MindMapVisualization = forwardRef(({ data }, ref) => {
                   
                   return (
                     <g key={`edge-${i}`}>
-                      {/* Glow effect for main trunk only */}
-                      {e.isTrunk && (
-                        <line
-                          x1={e.x1 + offsetX}
-                          y1={e.y1 + offsetY}
-                          x2={e.x2 + offsetX}
-                          y2={e.y2 + offsetY}
-                          stroke={edgeStyle.stroke}
-                          strokeWidth="6"
-                          opacity="0.2"
-                          filter="blur(3px)"
-                        />
-                      )}
-                      {/* Main line */}
+                      {/* Clean, minimal line */}
                       <line
                         x1={e.x1 + offsetX}
                         y1={e.y1 + offsetY}
@@ -406,9 +373,6 @@ const MindMapVisualization = forwardRef(({ data }, ref) => {
                         strokeWidth={edgeStyle.strokeWidth}
                         strokeLinecap="round"
                         opacity={edgeStyle.opacity}
-                        style={{
-                          filter: e.isTrunk ? 'drop-shadow(0 3px 6px rgba(0,0,0,0.4))' : 'drop-shadow(0 1px 2px rgba(0,0,0,0.2))'
-                        }}
                       />
                     </g>
                   );

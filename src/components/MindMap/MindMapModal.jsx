@@ -1,6 +1,6 @@
 'use client';
 import { FaProjectDiagram, FaTimes } from 'react-icons/fa';
-import HorizontalMindMapVisualization from './VerticalMindMapVisualization';
+import MindMapVisualization from './MindMapVisualization';
 import { useRef } from 'react';
 
 const MindMapModal = ({ isOpen, onClose, mindMapData, title }) => {
@@ -44,7 +44,7 @@ const MindMapModal = ({ isOpen, onClose, mindMapData, title }) => {
         <div className="flex-1 overflow-hidden bg-gray-900">
           {mindMapData && (
             <div className="h-full">
-              <HorizontalMindMapVisualization ref={vizRef} data={mindMapData} />
+              <MindMapVisualization data={mindMapData} />
             </div>
           )}
         </div>
