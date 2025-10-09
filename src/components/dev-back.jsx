@@ -15,7 +15,7 @@ export function BackgroundGradientDemo({ imgSrc, description, githubLink, linked
           width="300"
           className="object-contain"
         />
-        <p className="md:text-2xl sm:text-xl text-white mt-4 mb-4 dark:text-neutral-200 text-center">
+        <p className="md:text-2xl sm:text-xl text-white mt-4 mb-4 font-normal text-center">
           {description}
         </p>
 
