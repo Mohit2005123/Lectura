@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useState, useEffect, useMemo } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import html2pdf from 'html2pdf.js';
 import { 
   FaDownload, FaFilePdf, FaTrash, FaSave, FaRobot, FaProjectDiagram,
@@ -9,30 +9,28 @@ import {
 } from 'react-icons/fa';
 import Navbar from '../../../components/landingpage/Navbar';
 import Footer from '../../../components/Footer';
+import MindMapModal from '../../../components/MindMap/MindMapModal';
 import RichTextEditor from '../../../components/RichTextEditor';
-import { MindMapModal } from '../../../components/MindMap';
 import { db, auth } from '../../../lib/firebase';
-import { doc, getDoc, updateDoc, collection, addDoc, query, where, getDocs, setDoc, arrayUnion } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, collection, addDoc, setDoc, arrayUnion } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
 import { Toaster, toast } from 'react-hot-toast';
 
+// Modern Button styling object - More rounded
+const BTN = {
+  primary: "group relative flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 py-2 rounded-2xl font-medium transition-all duration-300 ease-out shadow-lg hover:shadow-xl hover:shadow-blue-500/25 hover:-translate-y-0.5 active:translate-y-0 active:shadow-md border border-blue-500/20 backdrop-blur-sm",
+  secondary: "group relative flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-4 py-2 rounded-2xl font-medium transition-all duration-300 ease-out shadow-lg hover:shadow-xl hover:shadow-emerald-500/25 hover:-translate-y-0.5 active:translate-y-0 active:shadow-md border border-emerald-400/20 backdrop-blur-sm",
+  accent: "group relative flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-4 py-2 rounded-2xl font-medium transition-all duration-300 ease-out shadow-lg hover:shadow-xl hover:shadow-purple-500/25 hover:-translate-y-0.5 active:translate-y-0 active:shadow-md border border-purple-500/20 backdrop-blur-sm",
+  warning: "group relative flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white px-4 py-2 rounded-2xl font-medium transition-all duration-300 ease-out shadow-lg hover:shadow-xl hover:shadow-amber-500/25 hover:-translate-y-0.5 active:translate-y-0 active:shadow-md border border-amber-400/20 backdrop-blur-sm",
+  disabled: "group relative flex items-center gap-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white px-4 py-2 rounded-2xl font-medium transition-all duration-300 ease-out shadow-md cursor-not-allowed opacity-60 border border-gray-400/20"
+};
+
 export default function VideoPage() {
   const params = useParams();
   const contentRef = useRef(null);
   const hiddenContentRef = useRef(null);
-  // Modern button style constants (fixed classes so Tailwind can tree-shake correctly)
-  const btnBase = "group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl text-white shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 ring-offset-2 ring-offset-black active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed overflow-hidden btn-shine btn-aura ring-1 ring-white/10";
-  const BTN = {
-    purple: `${btnBase} bg-gradient-to-br from-purple-500 to-purple-700 hover:from-purple-400 hover:to-purple-700 focus:ring-purple-400/50 shadow-purple-900/30 hover:shadow-2xl`,
-    emerald: `${btnBase} bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-600 focus:ring-emerald-400/50 shadow-emerald-900/30 hover:shadow-2xl`,
-    blue: `${btnBase} bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-600 focus:ring-blue-400/50 shadow-blue-900/30 hover:shadow-2xl`,
-    amber: `${btnBase} bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-600 focus:ring-amber-400/50 shadow-amber-900/30 hover:shadow-2xl`,
-    indigo: `${btnBase} bg-gradient-to-br from-indigo-500 to-indigo-700 hover:from-indigo-400 hover:to-indigo-700 focus:ring-indigo-400/50 shadow-indigo-900/30 hover:shadow-2xl`,
-    softGray: `${btnBase} bg-gray-700 hover:brightness-110 focus:ring-gray-400/40 hover:shadow-xl`
-  };
-  
   const chatEndRef = useRef(null);
   const [isSaving, setIsSaving] = useState(false);
   const [user, setUser] = useState(null);
@@ -190,7 +188,7 @@ export default function VideoPage() {
       chatEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }, [messages]);
-  
+
 
   const handleHeadingChange = (index, newHeading) => {
     const updatedData = [...videoData];
@@ -281,7 +279,7 @@ export default function VideoPage() {
     setIsTyping(true);
     let visibleText = '';
     const messageLength = message.length;
-    
+
     for (let i = 0; i < messageLength; i++) {
       visibleText += message[i];
       setMessages(prev => [
@@ -300,7 +298,7 @@ export default function VideoPage() {
       setChatLoading(true);
       const newUserMessage = { text: message, sender: 'user' };
       setMessages(prev => [...prev, newUserMessage, { text: '', sender: 'ai' }]);
-      
+
       const response = await axios.post('/api/chat', {
         message,
         videoData,
@@ -451,39 +449,83 @@ export default function VideoPage() {
         }
       `}</style>
       <style jsx>{`
-        /* Shimmer line that sweeps across buttons */
-        .btn-shine::after {
+        /* Modern button effects */
+        button.group {
+          position: relative;
+          overflow: hidden;
+        }
+        
+        /* Shimmer effect for modern buttons */
+        button.group::before {
           content: "";
           position: absolute;
-          inset: 0;
-          background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.12) 20%, transparent 40%);
-          transform: translateX(-100%);
-          transition: transform 0.6s ease;
-          pointer-events: none;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+          transition: left 0.5s ease;
         }
-        .btn-shine:hover::after {
-          transform: translateX(100%);
+        
+        button.group:hover::before {
+          left: 100%;
         }
-
-        /* Soft glowing aura around buttons */
-        .btn-aura::before {
+        
+        /* Icon animations */
+        button.group svg {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        button.group:hover svg {
+          transform: scale(1.1) rotate(2deg);
+        }
+        
+        /* Ripple effect */
+        button.group::after {
           content: "";
           position: absolute;
-          inset: -1px;
-          border-radius: 0.75rem;
-          background: radial-gradient(120px 60px at var(--mx,50%) 10%, rgba(255,255,255,0.2), transparent 60%);
-          opacity: 0;
-          transition: opacity 0.2s ease;
-          filter: blur(12px);
-          pointer-events: none;
+          top: 50%;
+          left: 50%;
+          width: 0;
+          height: 0;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.3);
+          transform: translate(-50%, -50%);
+          transition: width 0.6s, height 0.6s;
         }
-        .btn-aura:hover::before {
-          opacity: 1;
+        
+        button.group:active::after {
+          width: 300px;
+          height: 300px;
         }
-
-        /* Icon hover nudge */
-        .btn-icon-move svg { transition: transform .2s ease; }
-        .btn-icon-move:hover svg { transform: translateX(2px) translateY(-1px) scale(1.05); }
+        
+        /* Focus ring for accessibility */
+        button.group:focus {
+          outline: none;
+          ring: 2px;
+          ring-color: rgba(59, 130, 246, 0.5);
+          ring-offset: 2px;
+        }
+        
+        /* Loading state animation */
+        button.group.loading svg {
+          animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        
+        /* Pulse animation for important actions */
+        button.group.pulse {
+          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.8; }
+        }
       `}</style>
       <style jsx>{`
         .pdf-mode {
@@ -522,6 +564,14 @@ export default function VideoPage() {
           color: #cbd5e0;
         }
         .chat-message {
+          background-color: #2d3748;
+          color: #cbd5e0;
+        }
+        .chat-message-user {
+          background-color: #2b6cb0;
+          color: #ffffff;
+        }
+        .chat-message-ai {
           background-color: #2d3748;
           color: #cbd5e0;
         }
@@ -673,248 +723,248 @@ export default function VideoPage() {
                 className="bg-gray-800 text-white px-4 py-2 rounded-lg w-64"
               />
             </div>
-            <div className="flex gap-3 flex-wrap justify-end">
+            <div className="flex gap-4 flex-wrap justify-end">
               {videoLink && (
                 <button
                   onClick={() => setIsVideoVisible(!isVideoVisible)}
-                  className={`${BTN.purple} btn-icon-move`}
+                  className={`${BTN.accent} ${isVideoVisible ? 'pulse' : ''}`}
                 >
+                  <FaFilePdf className="w-5 h-5" />
                   {isVideoVisible ? 'Hide Video' : 'Play Video'}
                 </button>
               )}
               <button
                 onClick={handleSave}
                 disabled={isSaving}
-                className={`${isSaving ? BTN.softGray : BTN.emerald} btn-icon-move`}
+                className={`${isSaving ? BTN.disabled : BTN.secondary} ${isSaving ? 'loading' : ''}`}
               >
-                <FaSave />
+                <FaSave className="w-5 h-5" />
                 {isSaving ? 'Saving...' : 'Save Notes'}
               </button>
               <button
                 onClick={handleDownload}
-                className={`${BTN.blue} btn-icon-move`}
+                className={BTN.primary}
               >
-                <FaDownload />
+                <FaDownload className="w-5 h-5" />
                 Download PDF
               </button>
-              {/* <button
-                onClick={() => setIsChatOpen(!isChatOpen)}
-                className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
-                </svg>
-                {isChatOpen ? 'Close Chat' : 'Chat with AI'}
-              </button> */}
               <button
                 onClick={generateMindMap}
                 disabled={isGeneratingMindMap}
-                className={`${isGeneratingMindMap ? BTN.softGray : BTN.amber} btn-icon-move`}
+                className={`${isGeneratingMindMap ? BTN.disabled : BTN.warning} ${isGeneratingMindMap ? 'loading' : ''}`}
               >
-                <FaProjectDiagram />
+                <FaProjectDiagram className="w-5 h-5" />
                 {isGeneratingMindMap ? 'Generating...' : 'Create Mind Map'}
               </button>
               <button
-                onClick={()=>setIsChatOpen(!isChatOpen)}
-                className={`${BTN.indigo} btn-icon-move`}
+                onClick={() => setIsChatOpen(!isChatOpen)}
+                className={`${BTN.accent} ${isChatOpen ? 'pulse' : ''}`}
               >
-                <FaRobot />
+                <FaRobot className="w-5 h-5" />
                 {isChatOpen ? 'Close Chat' : 'Chat with AI'}
               </button>
             </div>
           </div>
 
-          {/* Global formatting toolbar positioned below header */}
-          <div className="flex items-center flex-wrap gap-2 mb-4 mt-2">
-            <button
-              onClick={() => execOnActive('bold')}
-              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700"
-              title="Bold"
-            >
-              <FaBold className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => execOnActive('italic')}
-              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700 italic"
-              title="Italic"
-            >
-              <FaItalic className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => execOnActive('underline')}
-              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700 underline"
-              title="Underline"
-            >
-              <FaUnderline className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => execOnActive('strikeThrough')}
-              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700"
-              title="Strikethrough"
-            >
-              <FaStrikethrough className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => execOnActive('superscript')}
-              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700"
-              title="Superscript"
-            >
-              <FaSuperscript className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => execOnActive('subscript')}
-              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700"
-              title="Subscript"
-            >
-              <FaSubscript className="w-4 h-4" />
-            </button>
+          {/* Modern formatting toolbar */}
+          <div className="flex items-center flex-wrap gap-3 mb-6 mt-4 p-4 bg-gray-900/50 rounded-xl border border-gray-700/50 backdrop-blur-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-300 mr-2">Format:</span>
+              <button
+                onClick={() => execOnActive('bold')}
+                className="group flex items-center justify-center w-8 h-8 rounded-xl bg-gray-800/80 hover:bg-gray-700 text-gray-300 hover:text-white transition-all duration-200 border border-gray-600/50 hover:border-gray-500 hover:shadow-lg"
+                title="Bold"
+              >
+                <FaBold className="w-3 h-3" />
+              </button>
+              <button
+                onClick={() => execOnActive('italic')}
+                className="group flex items-center justify-center w-8 h-8 rounded-xl bg-gray-800/80 hover:bg-gray-700 text-gray-300 hover:text-white transition-all duration-200 border border-gray-600/50 hover:border-gray-500 hover:shadow-lg italic"
+                title="Italic"
+              >
+                <FaItalic className="w-3 h-3" />
+              </button>
+              <button
+                onClick={() => execOnActive('underline')}
+                className="group flex items-center justify-center w-8 h-8 rounded-xl bg-gray-800/80 hover:bg-gray-700 text-gray-300 hover:text-white transition-all duration-200 border border-gray-600/50 hover:border-gray-500 hover:shadow-lg underline"
+                title="Underline"
+              >
+                <FaUnderline className="w-3 h-3" />
+              </button>
+              <button
+                onClick={() => execOnActive('strikeThrough')}
+                className="group flex items-center justify-center w-8 h-8 rounded-xl bg-gray-800/80 hover:bg-gray-700 text-gray-300 hover:text-white transition-all duration-200 border border-gray-600/50 hover:border-gray-500 hover:shadow-lg"
+                title="Strikethrough"
+              >
+                <FaStrikethrough className="w-3 h-3" />
+              </button>
+              <button
+                onClick={() => execOnActive('superscript')}
+                className="group flex items-center justify-center w-8 h-8 rounded-xl bg-gray-800/80 hover:bg-gray-700 text-gray-300 hover:text-white transition-all duration-200 border border-gray-600/50 hover:border-gray-500 hover:shadow-lg"
+                title="Superscript"
+              >
+                <FaSuperscript className="w-3 h-3" />
+              </button>
+              <button
+                onClick={() => execOnActive('subscript')}
+                className="group flex items-center justify-center w-8 h-8 rounded-xl bg-gray-800/80 hover:bg-gray-700 text-gray-300 hover:text-white transition-all duration-200 border border-gray-600/50 hover:border-gray-500 hover:shadow-lg"
+                title="Subscript"
+              >
+                <FaSubscript className="w-3 h-3" />
+              </button>
+            </div>
 
             {/* Heading selector removed as requested */}
 
-            {/* Font size */}
+            {/* Font controls */}
             <div className="flex items-center gap-2">
-              <FaTextHeight className="w-4 h-4 text-gray-300" title="Font size" />
-              <select
-              onChange={(e) => {
-                const size = e.target.value; // 1..7 legacy sizes
-                execOnActive('fontSize', size);
-              }}
-              defaultValue="3"
-              className="px-2 py-2 rounded border border-gray-700 bg-gray-800 text-white"
-              title="Font size"
-            >
-              <option value="1">XS</option>
-              <option value="2">SM</option>
-              <option value="3">MD</option>
-              <option value="4">LG</option>
-              <option value="5">XL</option>
-              <option value="6">2XL</option>
-              <option value="7">3XL</option>
-              </select>
+              <span className="text-sm font-medium text-gray-300 mr-2">Font:</span>
+              <div className="flex items-center gap-2">
+                <FaTextHeight className="w-4 h-4 text-gray-400" title="Font size" />
+                <select
+                  onChange={(e) => {
+                    const size = e.target.value;
+                    execOnActive('fontSize', size);
+                  }}
+                  defaultValue="3"
+                  className="px-2 py-1 rounded-xl border border-gray-600/50 bg-gray-800/80 text-white text-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-200"
+                  title="Font size"
+                >
+                  <option value="1">XS</option>
+                  <option value="2">SM</option>
+                  <option value="3">MD</option>
+                  <option value="4">LG</option>
+                  <option value="5">XL</option>
+                  <option value="6">2XL</option>
+                  <option value="7">3XL</option>
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
+                <FaFont className="w-4 h-4 text-gray-400" title="Font family" />
+                <select
+                  onChange={(e) => execOnActive('fontName', e.target.value)}
+                  defaultValue="inherit"
+                  className="px-2 py-1 rounded-xl border border-gray-600/50 bg-gray-800/80 text-white text-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-200"
+                  title="Font family"
+                >
+                  <option value="inherit">Default</option>
+                  <option value="Arial">Arial</option>
+                  <option value="Times New Roman">Times</option>
+                  <option value="Courier New">Monospace</option>
+                  <option value="Georgia">Georgia</option>
+                </select>
+              </div>
             </div>
 
-            {/* Font family */}
+            {/* Color controls */}
             <div className="flex items-center gap-2">
-              <FaFont className="w-4 h-4 text-gray-300" title="Font family" />
-              <select
-                onChange={(e) => execOnActive('fontName', e.target.value)}
-                defaultValue="inherit"
-                className="px-2 py-2 rounded border border-gray-700 bg-gray-800 text-white"
-                title="Font family"
-              >
-                <option value="inherit">Default</option>
-                <option value="Arial">Arial</option>
-                <option value="Times New Roman">Times</option>
-                <option value="Courier New">Monospace</option>
-                <option value="Georgia">Georgia</option>
-              </select>
-            </div>
-
-            {/* Text color */}
-            <div className="flex items-center gap-2">
-              <FaPalette className="w-4 h-4 text-gray-300" title="Text color" />
-              <input
-              type="color"
-              onChange={(e) => {
-                const color = e.target.value;
-                execOnActive('foreColor', color);
-              }}
-              className="h-9 w-10 p-1 rounded border border-gray-700 bg-gray-800"
-              title="Text color"
-              />
-            </div>
-
-            {/* Highlight color */}
-            <div className="flex items-center gap-2">
-              <FaHighlighter className="w-4 h-4 text-gray-300" title="Highlight color" />
-              <input
-              type="color"
-              onChange={(e) => {
-                const color = e.target.value;
-                execOnActive('hiliteColor', color);
-              }}
-              className="h-9 w-10 p-1 rounded border border-gray-700 bg-gray-800"
-              title="Highlight color"
-              />
+              <span className="text-sm font-medium text-gray-300 mr-2">Colors:</span>
+              <div className="flex items-center gap-2">
+                <FaPalette className="w-4 h-4 text-gray-400" title="Text color" />
+                <input
+                  type="color"
+                  onChange={(e) => {
+                    const color = e.target.value;
+                    execOnActive('foreColor', color);
+                  }}
+                  className="h-8 w-10 rounded-xl border border-gray-600/50 bg-gray-800/80 cursor-pointer hover:scale-105 transition-transform duration-200"
+                  title="Text color"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <FaHighlighter className="w-4 h-4 text-gray-400" title="Highlight color" />
+                <input
+                  type="color"
+                  onChange={(e) => {
+                    const color = e.target.value;
+                    execOnActive('hiliteColor', color);
+                  }}
+                  className="h-8 w-10 rounded-xl border border-gray-600/50 bg-gray-800/80 cursor-pointer hover:scale-105 transition-transform duration-200"
+                  title="Highlight color"
+                />
+              </div>
             </div>
 
             {/* Link controls */}
-            <button
-              onClick={() => {
-                const url = prompt('Enter URL');
-                if (!url) return;
-                execOnActive('createLink', url);
-              }}
-              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700"
-              title="Insert link"
-            >
-              <FaLink className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => execOnActive('unlink')}
-              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700"
-              title="Remove link"
-            >
-              <FaUnlink className="w-4 h-4" />
-            </button>
-
-            {/* Lists removed as requested */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-300 mr-2">Links:</span>
+              <button
+                onClick={() => {
+                  const url = prompt('Enter URL');
+                  if (!url) return;
+                  execOnActive('createLink', url);
+                }}
+                className="group flex items-center justify-center w-8 h-8 rounded-xl bg-gray-800/80 hover:bg-gray-700 text-gray-300 hover:text-white transition-all duration-200 border border-gray-600/50 hover:border-gray-500 hover:shadow-lg"
+                title="Insert link"
+              >
+                <FaLink className="w-3 h-3" />
+              </button>
+              <button
+                onClick={() => execOnActive('unlink')}
+                className="group flex items-center justify-center w-8 h-8 rounded-xl bg-gray-800/80 hover:bg-gray-700 text-gray-300 hover:text-white transition-all duration-200 border border-gray-600/50 hover:border-gray-500 hover:shadow-lg"
+                title="Remove link"
+              >
+                <FaUnlink className="w-3 h-3" />
+              </button>
+            </div>
 
             {/* Alignment */}
             <div className="flex items-center gap-2">
-              <FaAlignLeft className="w-4 h-4 text-gray-300" title="Align" />
-              <select
-              onChange={(e) => {
-                const val = e.target.value;
-                if (val === 'left') execOnActive('justifyLeft');
-                if (val === 'center') execOnActive('justifyCenter');
-                if (val === 'right') execOnActive('justifyRight');
-                if (val === 'justify') execOnActive('justifyFull');
-              }}
-              defaultValue="left"
-              className="px-2 py-2 rounded border border-gray-700 bg-gray-800 text-white"
-              title="Align"
-            >
-              <option value="left">Left</option>
-              <option value="center">Center</option>
-              <option value="right">Right</option>
-              <option value="justify">Justify</option>
-              </select>
+              <span className="text-sm font-medium text-gray-300 mr-2">Align:</span>
+              <div className="flex items-center gap-2">
+                <FaAlignLeft className="w-4 h-4 text-gray-400" title="Align" />
+                <select
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === 'left') execOnActive('justifyLeft');
+                    if (val === 'center') execOnActive('justifyCenter');
+                    if (val === 'right') execOnActive('justifyRight');
+                    if (val === 'justify') execOnActive('justifyFull');
+                  }}
+                  defaultValue="left"
+                  className="px-2 py-1 rounded-xl border border-gray-600/50 bg-gray-800/80 text-white text-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-200"
+                  title="Align"
+                >
+                  <option value="left">Left</option>
+                  <option value="center">Center</option>
+                  <option value="right">Right</option>
+                  <option value="justify">Justify</option>
+                </select>
+              </div>
             </div>
 
-            {/* Horizontal rule */}
-            <button
-              onClick={() => execOnActive('insertHorizontalRule')}
-              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700"
-              title="Insert horizontal rule"
-            >
-              <FaMinus className="w-4 h-4" />
-            </button>
-
-            {/* Clear formatting */}
-            <button
-              onClick={() => execOnActive('removeFormat')}
-              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700"
-              title="Clear formatting"
-            >
-              Clear
-            </button>
-
-            {/* Undo/Redo */}
-            <button
-              onClick={() => execOnActive('undo')}
-              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700"
-              title="Undo"
-            >
-              <FaUndo className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => execOnActive('redo')}
-              className="px-3 py-2 rounded border border-gray-700 text-white bg-gray-800 hover:bg-gray-700"
-              title="Redo"
-            >
-              <FaRedo className="w-4 h-4" />
-            </button>
+            {/* Actions */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-300 mr-2">Actions:</span>
+              <button
+                onClick={() => execOnActive('insertHorizontalRule')}
+                className="group flex items-center justify-center w-8 h-8 rounded-xl bg-gray-800/80 hover:bg-gray-700 text-gray-300 hover:text-white transition-all duration-200 border border-gray-600/50 hover:border-gray-500 hover:shadow-lg"
+                title="Insert horizontal rule"
+              >
+                <FaMinus className="w-3 h-3" />
+              </button>
+              <button
+                onClick={() => execOnActive('removeFormat')}
+                className="px-2 py-1 rounded-xl bg-gray-800/80 hover:bg-gray-700 text-gray-300 hover:text-white transition-all duration-200 border border-gray-600/50 hover:border-gray-500 hover:shadow-lg text-sm font-medium"
+                title="Clear formatting"
+              >
+                Clear
+              </button>
+              <button
+                onClick={() => execOnActive('undo')}
+                className="group flex items-center justify-center w-8 h-8 rounded-xl bg-gray-800/80 hover:bg-gray-700 text-gray-300 hover:text-white transition-all duration-200 border border-gray-600/50 hover:border-gray-500 hover:shadow-lg"
+                title="Undo"
+              >
+                <FaUndo className="w-3 h-3" />
+              </button>
+              <button
+                onClick={() => execOnActive('redo')}
+                className="group flex items-center justify-center w-8 h-8 rounded-xl bg-gray-800/80 hover:bg-gray-700 text-gray-300 hover:text-white transition-all duration-200 border border-gray-600/50 hover:border-gray-500 hover:shadow-lg"
+                title="Redo"
+              >
+                <FaRedo className="w-3 h-3" />
+              </button>
+            </div>
           </div>
 
           {/* Main Content with Video Section */}
@@ -922,11 +972,11 @@ export default function VideoPage() {
             {/* Video Section */}
             {isVideoVisible && videoLink && (
               <>
-                <div 
-                  style={{ 
+                <div
+                  style={{
                     width: `${videoWidth}%`,
                     transition: activeResizer ? 'none' : 'width 0.3s ease-in-out'
-                  }} 
+                  }}
                   className="sticky top-24 h-[calc(100vh-6rem)]"
                 >
                   <div className="rounded-xl overflow-hidden h-full">
@@ -951,7 +1001,7 @@ export default function VideoPage() {
             )}
 
             {/* Notes Section */}
-            <div 
+            <div
               style={{
                 ...getMainContentStyle(),
                 transition: activeResizer ? 'none' : 'width 0.3s ease-in-out'
@@ -959,9 +1009,8 @@ export default function VideoPage() {
             >
               <div
                 ref={contentRef}
-                className={`bg-black rounded-xl shadow-lg border border-gray-800 ${
-                  isVideoVisible ? 'p-6' : 'p-8'
-                } mb-4`}
+                className={`bg-black rounded-xl shadow-lg border border-gray-800 ${isVideoVisible ? 'p-6' : 'p-8'
+                  } mb-4`}
               >
                 <div className="space-y-8">
                   {videoData.map((section, index) => (
@@ -972,16 +1021,16 @@ export default function VideoPage() {
                       <div className="absolute right-0 top-0">
                         <button
                           onClick={() => handleDeleteSection(index)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                          className="group/delete opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
                           title="Delete section"
                         >
-                          <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 ring-1 ring-inset ring-red-500/20">
-                            <FaTrash />
+                          <span className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-gradient-to-r from-red-500/10 to-red-600/10 text-red-400 hover:from-red-500/20 hover:to-red-600/20 hover:text-red-300 ring-1 ring-inset ring-red-500/20 hover:ring-red-500/40 transition-all duration-200 shadow-lg hover:shadow-red-500/25">
+                            <FaTrash className="w-4 h-4" />
                           </span>
                         </button>
                       </div>
-                      <h2 className="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
-                        <span className="w-8 h-8 flex items-center justify-center bg-blue-900 text-blue-200 rounded-full text-sm">
+                      <h2 className="text-2xl font-semibold text-white mb-4 flex items-center gap-3">
+                        <span className="w-10 h-10 flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl text-sm font-bold shadow-lg ring-1 ring-blue-500/20">
                           {index + 1}
                         </span>
                         <div className="w-full">
@@ -1014,9 +1063,10 @@ export default function VideoPage() {
               <div className={`flex justify-center ${isVideoVisible ? 'mb-6' : 'mb-8'}`}>
                 <button
                   onClick={handleAddNewSection}
-                  className={`${BTN.emerald} px-6 py-3 text-lg btn-icon-move`}
+                  className={`${BTN.secondary} text-lg`}
                 >
-                  + Add New Section
+                  <span className="text-xl">+</span>
+                  Add New Section
                 </button>
               </div>
             </div>
@@ -1032,49 +1082,59 @@ export default function VideoPage() {
 
             {/* Chat Interface */}
             {isChatOpen && (
-              <div 
-                style={{ 
+              <div
+                style={{
                   width: `${chatWidth}%`,
                   transition: activeResizer ? 'none' : 'width 0.3s ease-in-out'
-                }} 
-                className="h-[80vh] sticky top-24 chat-container rounded-xl border border-gray-800 p-4"
+                }}
+                className="h-[80vh] sticky top-24 bg-gray-900/90 rounded-xl border border-gray-700 p-4 backdrop-blur-sm"
               >
                 <div className="flex flex-col h-full max-h-[calc(80vh-2rem)]">
-                  <div className="text-lg font-semibold mb-4">Chat with AI</div>
-                  <div className="flex-grow overflow-y-auto mb-4  space-y-4 max-h-[calc(80vh-10rem)] chat-messages-container">
+                  <div className="text-lg font-semibold mb-4 text-white">Chat with AI</div>
+                  <div className="flex-grow overflow-y-auto mb-4 space-y-4 max-h-[calc(80vh-10rem)] chat-messages-container">
+                    {messages.length === 0 && (
+                      <div className="text-center text-gray-400 py-8">
+                        <div className="text-4xl mb-2">🤖</div>
+                        <div className="text-sm">Start a conversation with AI about your notes!</div>
+                      </div>
+                    )}
                     {messages.map((msg, idx) => (
-                      <div 
-                        key={idx} 
-                        className={`p-3 rounded-lg chat-message ${
-                          msg.sender === 'user' ? 'ml-auto' : ''
-                        } max-w-[80%] ${
-                          msg.sender === 'ai' && isTyping && idx === messages.length - 1
-                            ? 'border-l-4 border-blue-500'
-                            : ''
+                      <div
+                        key={idx}
+                        className={`p-4 rounded-2xl max-w-[80%] ${
+                          msg.sender === 'user' 
+                            ? 'ml-auto bg-gradient-to-r from-blue-600 to-blue-700 text-white' 
+                            : 'bg-gray-800/80 text-gray-100 border border-gray-600/50'
+                        } ${msg.sender === 'ai' && isTyping && idx === messages.length - 1
+                          ? 'border-l-4 border-blue-500'
+                          : ''
                         }`}
                       >
-                        {msg.text}
-                        {msg.sender === 'ai' && isTyping && idx === messages.length - 1 && (
-                          <span className="inline-block w-1 h-4 bg-blue-500 ml-1 animate-pulse">|</span>
-                        )}
+                        <div className="text-sm leading-relaxed">
+                          {msg.text}
+                          {msg.sender === 'ai' && isTyping && idx === messages.length - 1 && (
+                            <span className="inline-block w-1 h-4 bg-blue-500 ml-1 animate-pulse">|</span>
+                          )}
+                        </div>
                       </div>
                     ))}
                     <div ref={chatEndRef} />
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-3">
                     <input
                       value={inputMessage}
                       onChange={(e) => setInputMessage(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && sendMessage(inputMessage)}
                       placeholder="Type your message..."
-                      className="flex-grow chat-input rounded-lg px-4 py-2"
+                      className="flex-grow px-4 py-3 rounded-2xl bg-gray-800/80 border border-gray-600/50 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-200 backdrop-blur-sm"
                       disabled={chatLoading}
                     />
                     <button
                       onClick={() => sendMessage(inputMessage)}
-                      disabled={isLoading}
-                      className="chat-button px-4 py-2 rounded-lg"
+                      disabled={chatLoading}
+                      className={`${chatLoading ? BTN.disabled : BTN.primary} ${chatLoading ? 'loading' : ''}`}
                     >
+                      <FaRobot className="w-4 h-4" />
                       {chatLoading ? 'Sending...' : 'Send'}
                     </button>
                   </div>
@@ -1104,7 +1164,7 @@ export default function VideoPage() {
         mindMapData={mindMapData}
         title={noteTitle}
       />
-      
+
       <Footer />
     </>
   );
