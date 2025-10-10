@@ -2,8 +2,8 @@
 
 import { Youtube, BookOpen, Brain } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Carousel } from './ui/apple-cards-carousel'; // ← your Carousel file
-
+// import { Carousel } from './ui/apple-cards-carousel'; // ← your Carousel file
+import FeaturesSectionDemo from './features-section-demo-2';
 // --- Feature icons and short static cards
 const features = [
   {
@@ -121,7 +121,7 @@ export default function Features() {
       {/* 🪩 Fancy vignette overlay */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,black_100%)]" />
 
-      {/* 🌀 Integrated Apple-style Carousel */}
+      {/* 🌀 Integrated Apple-style Carousel
       <div className="flex justify-center items-center pt-16">
         <Carousel
           items={[
@@ -195,6 +195,9 @@ export default function Features() {
             },
           ]}
         />
+      </div> */}
+      <div className='flex justify-center items-center pt-16'>
+        <FeaturesSectionDemo/>
       </div>
     </section>
   );
