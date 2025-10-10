@@ -1,17 +1,28 @@
 'use client';
 import { FaProjectDiagram, FaTimes } from 'react-icons/fa';
-import HorizontalMindMapVisualization from './VerticalMindMapVisualization';
-import { useRef } from 'react';
+import MindMap from '../MindMap';
+import { useState, useEffect } from 'react';
 
 const MindMapModal = ({ isOpen, onClose, mindMapData, title }) => {
-  const vizRef = useRef(null);
-  if (!isOpen) return null;
+  const [containerSize, setContainerSize] = useState({ width: 1200, height: 800 });
 
-  const handleFitWidth = () => {
-    if (vizRef.current && typeof vizRef.current.fitToWidth === 'function') {
-      vizRef.current.fitToWidth();
-    }
-  };
+  // Update container size when modal opens
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const updateSize = () => {
+      setContainerSize({
+        width: Math.max(800, window.innerWidth * 0.9),
+        height: Math.max(600, window.innerHeight * 0.8)
+      });
+    };
+
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    return () => window.removeEventListener('resize', updateSize);
+  }, [isOpen]);
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
@@ -26,12 +37,6 @@ const MindMapModal = ({ isOpen, onClose, mindMapData, title }) => {
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={handleFitWidth}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-700 border border-gray-600 text-white hover:bg-gray-600 shadow-sm transition-colors"
-            >
-              Fit to View
-            </button>
-            <button
               onClick={onClose}
               className="text-gray-400 hover:text-white text-3xl font-light transition-colors duration-200 hover:bg-gray-700 rounded-full w-10 h-10 flex items-center justify-center"
             >
@@ -39,12 +44,16 @@ const MindMapModal = ({ isOpen, onClose, mindMapData, title }) => {
             </button>
           </div>
         </div>
-        
+
         {/* Content */}
-        <div className="flex-1 overflow-hidden bg-gray-900">
+        <div className="flex-1 overflow-hidden bg-gray-50">
           {mindMapData && (
             <div className="h-full">
-              <HorizontalMindMapVisualization ref={vizRef} data={mindMapData} />
+              <MindMap
+                data={mindMapData}
+                containerSize={containerSize}
+                showControls={true}
+              />
             </div>
           )}
         </div>

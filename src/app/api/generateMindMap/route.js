@@ -74,17 +74,17 @@ export async function POST(req) {
       // Clean the response content to remove any markdown formatting
       const cleanedContent = responseContent.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       mindMapData = JSON.parse(cleanedContent);
-      
+
       // Validate the structure
       if (!mindMapData.id || !mindMapData.text) {
         throw new Error("Invalid mind map structure: missing required fields");
       }
-      
+
       console.log("Parsed mind map data:", mindMapData);
     } catch (parseError) {
       console.error("Failed to parse AI response as JSON:", responseContent);
       console.error("Parse error:", parseError);
-      
+
       // Return a fallback structure
       mindMapData = {
         id: "root",
@@ -96,7 +96,7 @@ export async function POST(req) {
             children: []
           },
           {
-            id: "main2", 
+            id: "main2",
             text: "Main Topic 2",
             children: []
           }

@@ -16,24 +16,32 @@ const DashboardPage = () => {
   const [selectedCard, setSelectedCard] = useState(null);
   const [notes, setNotes] = useState([]);
   const [userId, setUserId] = useState(null);
-  const [userName, setUserName] = useState('');  // Add this line
+  const [userName, setUserName] = useState('User');  // Set default value
   const [isLoading, setIsLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Handle hydration
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
+    if (!isMounted) return;
+
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUserId(user.uid);
-        setUserName(user.displayName || 'User');  // Add this line
+        setUserName(user.displayName || 'User');
       } else {
         setUserId(null);
-        setUserName('');  // Add this line
+        setUserName('User');
         setNotes([]);
       }
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [isMounted]);
 
   useEffect(() => {
     const fetchUserNotes = async () => {
@@ -147,7 +155,7 @@ const DashboardPage = () => {
       try {
         // Delete the note document
         await deleteDoc(doc(db, "notes", noteId));
-        
+
         // Remove the note reference from user's notes array
         if (userId) {
           const userRef = doc(db, "users", userId);
@@ -164,6 +172,15 @@ const DashboardPage = () => {
     }
   };
 
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-black">
       <div className="fixed top-0 left-0 right-0 z-50">
@@ -173,7 +190,7 @@ const DashboardPage = () => {
       <div className="container mx-auto px-8 py-8 pt-24 max-w-[1200px] relative">
         <div className="h-[15rem] w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md">
           <h1 className="md:text-5xl text-5xl lg:text-6xl font-bold text-center text-white relative z-20">
-            Hello  {userName}
+            Hello {isMounted ? userName : 'User'}
           </h1>
           <div className="w-[40rem] h-40 relative">
             {/* Gradients */}

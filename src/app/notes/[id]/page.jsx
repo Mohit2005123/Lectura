@@ -4,7 +4,7 @@ import html2pdf from 'html2pdf.js';
 import { FaDownload, FaFilePdf, FaTrash, FaSave, FaRobot, FaProjectDiagram } from 'react-icons/fa';
 import Navbar from '../../../components/landingpage/Navbar';
 import Footer from '../../../components/Footer';
-import { MindMapModal } from '../../../components/MindMap';
+import MindMapModal from '../../../components/MindMap/MindMapModal';
 import { db, auth } from '../../../lib/firebase';
 import { doc, getDoc, updateDoc, collection, addDoc, query, where, getDocs, setDoc, arrayUnion } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -16,7 +16,7 @@ export default function VideoPage() {
   const params = useParams();
   const contentRef = useRef(null);
   const hiddenContentRef = useRef(null);
-  
+
   const chatEndRef = useRef(null);
   const [isSaving, setIsSaving] = useState(false);
   const [user, setUser] = useState(null);
@@ -156,7 +156,7 @@ export default function VideoPage() {
       chatEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }, [messages]);
-  
+
 
   const handleHeadingChange = (index, newHeading) => {
     const updatedData = [...videoData];
@@ -247,7 +247,7 @@ export default function VideoPage() {
     setIsTyping(true);
     let visibleText = '';
     const messageLength = message.length;
-    
+
     for (let i = 0; i < messageLength; i++) {
       visibleText += message[i];
       setMessages(prev => [
@@ -266,7 +266,7 @@ export default function VideoPage() {
       setChatLoading(true);
       const newUserMessage = { text: message, sender: 'user' };
       setMessages(prev => [...prev, newUserMessage, { text: '', sender: 'ai' }]);
-      
+
       const response = await axios.post('/api/chat', {
         message,
         videoData,
@@ -648,7 +648,7 @@ export default function VideoPage() {
                 {isGeneratingMindMap ? 'Generating...' : 'Create Mind Map'}
               </button>
               <button
-                onClick={()=>setIsChatOpen(!isChatOpen)}
+                onClick={() => setIsChatOpen(!isChatOpen)}
                 className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
               >
                 <FaRobot />
@@ -662,11 +662,11 @@ export default function VideoPage() {
             {/* Video Section */}
             {isVideoVisible && videoLink && (
               <>
-                <div 
-                  style={{ 
+                <div
+                  style={{
                     width: `${videoWidth}%`,
                     transition: activeResizer ? 'none' : 'width 0.3s ease-in-out'
-                  }} 
+                  }}
                   className="sticky top-24 h-[calc(100vh-6rem)]"
                 >
                   <div className="rounded-xl overflow-hidden h-full">
@@ -691,7 +691,7 @@ export default function VideoPage() {
             )}
 
             {/* Notes Section */}
-            <div 
+            <div
               style={{
                 ...getMainContentStyle(),
                 transition: activeResizer ? 'none' : 'width 0.3s ease-in-out'
@@ -699,9 +699,8 @@ export default function VideoPage() {
             >
               <div
                 ref={contentRef}
-                className={`bg-black rounded-xl shadow-lg border border-gray-800 ${
-                  isVideoVisible ? 'p-6' : 'p-8'
-                } mb-4`}
+                className={`bg-black rounded-xl shadow-lg border border-gray-800 ${isVideoVisible ? 'p-6' : 'p-8'
+                  } mb-4`}
               >
                 <div className="space-y-8">
                   {videoData.map((section, index) => (
@@ -768,26 +767,24 @@ export default function VideoPage() {
 
             {/* Chat Interface */}
             {isChatOpen && (
-              <div 
-                style={{ 
+              <div
+                style={{
                   width: `${chatWidth}%`,
                   transition: activeResizer ? 'none' : 'width 0.3s ease-in-out'
-                }} 
+                }}
                 className="h-[80vh] sticky top-24 chat-container rounded-xl border border-gray-800 p-4"
               >
                 <div className="flex flex-col h-full max-h-[calc(80vh-2rem)]">
                   <div className="text-lg font-semibold mb-4">Chat with AI</div>
                   <div className="flex-grow overflow-y-auto mb-4  space-y-4 max-h-[calc(80vh-10rem)] chat-messages-container">
                     {messages.map((msg, idx) => (
-                      <div 
-                        key={idx} 
-                        className={`p-3 rounded-lg chat-message ${
-                          msg.sender === 'user' ? 'ml-auto' : ''
-                        } max-w-[80%] ${
-                          msg.sender === 'ai' && isTyping && idx === messages.length - 1
+                      <div
+                        key={idx}
+                        className={`p-3 rounded-lg chat-message ${msg.sender === 'user' ? 'ml-auto' : ''
+                          } max-w-[80%] ${msg.sender === 'ai' && isTyping && idx === messages.length - 1
                             ? 'border-l-4 border-blue-500'
                             : ''
-                        }`}
+                          }`}
                       >
                         {msg.text}
                         {msg.sender === 'ai' && isTyping && idx === messages.length - 1 && (
@@ -840,7 +837,7 @@ export default function VideoPage() {
         mindMapData={mindMapData}
         title={noteTitle}
       />
-      
+
       <Footer />
     </>
   );

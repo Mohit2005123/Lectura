@@ -15,8 +15,15 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
@@ -40,7 +47,7 @@ export default function Navbar() {
       window.removeEventListener('scroll', handleScroll);
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [isMounted]);
 
   const handleLogout = async () => {
     try {
@@ -50,7 +57,7 @@ export default function Navbar() {
     }
   };
 
-  const handleGenerateNotesClick = async() => {
+  const handleGenerateNotesClick = async () => {
     // First scroll to top instantly
     window.scrollTo(0, 0);
     await new Promise(resolve => setTimeout(resolve, 200));
@@ -60,7 +67,7 @@ export default function Navbar() {
     });
   };
 
-  const handleUploadNotesClick = async() => {
+  const handleUploadNotesClick = async () => {
     window.scrollTo(0, 0);
     await new Promise(resolve => setTimeout(resolve, 200));
     // Use requestAnimationFrame to ensure the scroll is complete before opening modal
@@ -69,10 +76,10 @@ export default function Navbar() {
     });
   };
   return (
-    <nav 
+    <nav
       className={`fixed w-full z-50 transition-all duration-300 ease-in-out 
-        ${isScrolled 
-          ? 'bg-black/80 backdrop-blur-md shadow-2xl border-b border-zinc-800/50' 
+        ${isScrolled
+          ? 'bg-black/80 backdrop-blur-md shadow-2xl border-b border-zinc-800/50'
           : 'bg-black'}`}
     >
       <div className="max-w-7xl mx-auto px-6 py-4">
@@ -124,15 +131,17 @@ export default function Navbar() {
 
           {/* Desktop Auth Buttons */}
           <div className="hidden lg:flex items-center space-x-4">
-            {!user ? (
+            {!isMounted ? (
+              <div className="w-10 h-10 rounded-full bg-zinc-800 animate-pulse"></div>
+            ) : !user ? (
               <div className="flex items-center space-x-4">
                 <Link href="/login" className="group flex items-center space-x-2 
                   text-zinc-400 hover:text-white transition-all duration-300">
                   <LogIn className="w-5 h-5 text-zinc-500 group-hover:text-emerald-400 transition-colors" />
                   <span className="text-sm font-medium">Login</span>
                 </Link>
-                <Link 
-                  href="/signup" 
+                <Link
+                  href="/signup"
                   className="px-5 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 
                     text-white rounded-full text-sm font-semibold 
                     hover:from-cyan-600 hover:to-blue-700 
@@ -150,9 +159,9 @@ export default function Navbar() {
                   className="w-10 h-10 rounded-full overflow-hidden border-2 border-zinc-700 hover:border-zinc-500 transition-all duration-300"
                 >
                   {user?.photoURL ? (
-                    <img 
-                      src={user.photoURL} 
-                      alt="Profile" 
+                    <img
+                      src={user.photoURL}
+                      alt="Profile"
                       className="w-full h-full object-cover"
                       referrerPolicy="no-referrer"
                     />
@@ -205,11 +214,13 @@ export default function Navbar() {
                 <div className="flex items-center space-x-2">
                   <Home className="w-5 h-5" />
                   <span>Generate Notes</span>
-                  
+
                 </div>
               </button>
-              
-              {!user ? (
+
+              {!isMounted ? (
+                <div className="w-full h-10 bg-zinc-800 animate-pulse rounded-md"></div>
+              ) : !user ? (
                 <>
                   <Link href="/login" className="block px-3 py-2 rounded-md text-base font-medium 
                     text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all duration-300">
